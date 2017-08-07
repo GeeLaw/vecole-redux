@@ -1,0 +1,23 @@
+# C++ ignores from GitHub/gitignore
+*.d
+*.slo
+*.lo
+*.o
+*.obj
+*.gch
+*.pch
+*.so
+*.dylib
+*.dll
+*.mod
+*.smod
+*.lai
+*.la
+*.a
+*.lib
+*.exe
+*.out
+*.app
+
+# Visual Studio Code
+.vscode/
