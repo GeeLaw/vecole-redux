@@ -12,54 +12,54 @@ namespace Cryptography
 		constexpr Type Random = 1u << 17;
 	}
 
-    template <unsigned p, typename TBaseType = unsigned>
+    template <uint32_t p, typename TBaseType = uint32_t, typename TPromotedType = uint64_t>
     struct Z
     {
-        Z() : raw_value { 0 } { }
-        Z(TBaseType const &raw) : raw_value { raw % p } { }
-        Z(Z &&) = default;
-        Z(Z const &) = default;
+        constexpr Z() : raw_value(0) { }
+        constexpr Z(TPromotedType const &raw) : raw_value((TBaseType)(raw % p)) { }
+        constexpr Z(Z &&) = default;
+        constexpr Z(Z const &) = default;
         Z &operator = (Z &&) = default;
         Z &operator = (Z const &) = default;
-        friend bool operator == (Z const &a, Z const &b)
+        friend constexpr bool operator == (Z a, Z b)
         {
             return a.raw_value == b.raw_value;
         }
-        friend bool operator != (Z const &a, Z const &b)
+        friend constexpr bool operator != (Z a, Z b)
         {
             return a.raw_value != b.raw_value;
         }
-        operator TBaseType const () const
+        constexpr operator TBaseType const () const
         {
             return raw_value;
         }
-        friend Z &operator += (Z &lhs, Z const &rhs)
+        friend Z &operator += (Z &lhs, Z const rhs)
         {
             return lhs = lhs + rhs;
         }
-        friend Z &operator -= (Z &lhs, Z const &rhs)
+        friend Z &operator -= (Z &lhs, Z const rhs)
         {
             return lhs = lhs - rhs;
         }
-        friend Z &operator *= (Z &lhs, Z const &rhs)
+        friend Z &operator *= (Z &lhs, Z const rhs)
         {
             return lhs = lhs * rhs;
         }
-        friend Z const operator + (Z const &a, Z const &b)
+        friend constexpr Z const operator + (Z const a, Z const b)
         {
-            return a.raw_value + b.raw_value;
+            return (TPromotedType)a.raw_value + b.raw_value;
         }
-        friend Z const operator - (Z const &a)
+        friend constexpr Z const operator - (Z const a)
         {
             return p - a.raw_value;
         }
-        friend Z const operator - (Z const &a, Z const &b)
+        friend constexpr Z const operator - (Z const a, Z const b)
         {
-            return p - b.raw_value + a.raw_value;
+            return (TPromotedType)p - b.raw_value + a.raw_value;
         }
-        friend Z const operator * (Z const &a, Z const &b)
+        friend constexpr Z const operator * (Z const a, Z const b)
         {
-            return a.raw_value * b.raw_value;
+            return (TPromotedType)a.raw_value * b.raw_value;
         }
     private:
         TBaseType raw_value;
