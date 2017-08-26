@@ -226,14 +226,14 @@ namespace LubyTransform
                  * or advance the iterators (current bin is kept) */
                 if (shouldAdvance)
                 {
-					++bins;
-					++encoded;
+                    ++bins;
+                    ++encoded;
                 }
                 else
                 {
-					*bins = *--binsEnd;
-					*encoded = std::move(*--encodedEnd);
-				}
+                    *bins = *--binsEnd;
+                    *encoded = std::move(*--encodedEnd);
+                }
             }
         } while (false);
         /* Round 2: solve the rest */

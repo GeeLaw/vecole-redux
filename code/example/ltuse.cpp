@@ -66,15 +66,15 @@ double TestLTCode(LTCode<> const &code, unsigned const count)
     {
         memset(boolArray, false, w * sizeof(bool));
         memset(boolArray + w, true, v * sizeof(bool));
-		for (unsigned j = 0u; j != w; ++j)
-			plain[j] = UZp(rng);
-		EraseSubsetExact(boolArray + w, boolArray + w + v, vErased, rng);
-		for (unsigned j = 0u; j != v; ++j)
-			encoded[j] = 0;
-		code.Encode(encoded, (bool const *)boolArray + w, (Zp const *)plain);
-		for (unsigned j = 0u; j != w; ++j)
+        for (unsigned j = 0u; j != w; ++j)
+            plain[j] = UZp(rng);
+        EraseSubsetExact(boolArray + w, boolArray + w + v, vErased, rng);
+        for (unsigned j = 0u; j != v; ++j)
+            encoded[j] = 0;
+        code.Encode(encoded, (bool const *)boolArray + w, (Zp const *)plain);
+        for (unsigned j = 0u; j != w; ++j)
             decoded[j] = 0;
-		surrogate = code;
+        surrogate = code;
         if (!surrogate.DecodeDestructive
         (
             boolArray, boolArray + w,
@@ -87,7 +87,7 @@ double TestLTCode(LTCode<> const &code, unsigned const count)
             if (decoded[j] != plain[j])
             {
                 fputs("There is a mistake in Luby Transform algorithm.\n", stderr);
-				fprintf(stderr, "Index %u: was %u, decoded to %u.\n", j, (unsigned)plain[j], (unsigned)decoded[j]);
+                fprintf(stderr, "Index %u: was %u, decoded to %u.\n", j, (unsigned)plain[j], (unsigned)decoded[j]);
                 return -1.0;
             }
         ++success;
