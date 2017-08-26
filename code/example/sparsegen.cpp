@@ -59,15 +59,15 @@ int main(int argc, char **argv)
     {
         code.Resample(rng, UZp);
         double successRate = TestSparseCode(code, SmallSampleSize);
-		if (successRate < 0)
-			return -1;
+        if (successRate < 0)
+            return -1;
         if (successRate <= bestSuccessRate)
             continue;
         fprintf(stderr, "\nFound a good candidate (%f%%, sample size = %u), testing more.\n", successRate * 100, SmallSampleSize);
         successRate = TestSparseCode(code, LargeSampleSize);
-		if (successRate < 0)
-			return -1;
-		if (successRate <= bestSuccessRate)
+        if (successRate < 0)
+            return -1;
+        if (successRate <= bestSuccessRate)
         {
             fputs("Further test finished: discarded.\n", stderr);
             continue;
@@ -186,9 +186,9 @@ double TestSparseCode(FSLCode const &code, unsigned const count)
     for (unsigned i = 0u; i != count; ++i)
     {
         memset(boolArray, true, (u + v) * sizeof(bool));
-		EraseSubsetExact(boolArray, boolArray + u, uErased, rng);
-		EraseSubsetExact(boolArray + u, boolArray + u + v, vErased, rng);
-		for (unsigned j = 0u; j != k; ++j)
+        EraseSubsetExact(boolArray, boolArray + u, uErased, rng);
+        EraseSubsetExact(boolArray + u, boolArray + u + v, vErased, rng);
+        for (unsigned j = 0u; j != k; ++j)
             plain[j] = UZp(rng);
         memset(encoded, 0, (u + v) * sizeof(Zp));
         memset(tempMatrix, 0, (u - uErased) * (k + 1u) * sizeof(Zp));
@@ -207,7 +207,7 @@ double TestSparseCode(FSLCode const &code, unsigned const count)
             if (decoded[j] != plain[j])
             {
                 fputs("There is a mistake in sparse linear code algorithm (phase 1).\n", stderr);
-				fprintf(stderr, "Index %u: was %u, decoded to %u.\n", j, (unsigned)plain[j], (unsigned)decoded[j]);
+                fprintf(stderr, "Index %u: was %u, decoded to %u.\n", j, (unsigned)plain[j], (unsigned)decoded[j]);
                 return -1.0;
             }
             else
@@ -219,7 +219,7 @@ double TestSparseCode(FSLCode const &code, unsigned const count)
             if ((bool)(unsigned)encoded[u + j])
             {
                 fputs("There is a mistake in sparse linear code algorithm (phase 2).\n", stderr);
-				fprintf(stderr, "Index u+%u: derandomised to %u.\n", j, (unsigned)encoded[u + j]);
+                fprintf(stderr, "Index u+%u: derandomised to %u.\n", j, (unsigned)encoded[u + j]);
                 return -1.0;
             }
         ++success;
