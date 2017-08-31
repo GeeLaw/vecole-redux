@@ -173,7 +173,7 @@ namespace SparseLinearCode
             for (unsigned i = U + V; i != 0u; --i)
             {
                 dedup.clear();
-                for (unsigned j = D; j != 0u; ++j)
+                for (unsigned j = D; j != 0u; --j)
                 {
                     unsigned col;
                     do
