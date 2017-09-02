@@ -159,12 +159,15 @@ namespace Cryptography
         {
             return (TPromotedType)a.raw_value * b.raw_value;
         }
-        friend Z const operator / (Z const a, Z const b)
+        Z const Inverse() const
         {
             TBaseType inv = 0u;
-            ExtendedEuclideanImpl_::EEInv(b.raw_value, p, inv);
-            /* fail silently */
-            return a * (Z)inv;
+            ExtendedEuclideanImpl_::EEInv(raw_value, p, inv);
+            return inv;
+        }
+        friend Z const operator / (Z const a, Z const b)
+        {
+            return a * b.Inverse();
         }
     private:
         TBaseType raw_value;
