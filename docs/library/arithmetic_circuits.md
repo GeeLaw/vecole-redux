@@ -4,7 +4,7 @@ This file defines utilities in `Cryptography::ArithmeticCircuits` namespace, whi
 
 ## `GateHandle` type
 
-The alias of `unsigned`. Throughout the code, the `Gate`s are stored in an array (or more precisely, a `std::vector`), and they are reference by their index. It should be well noted that the handle is *always* the index of the gate in the `Gates` array. Such attention is important for input gates.
+The alias of `size_t`. Throughout the code, the `Gate`s are stored in an array (or more precisely, a `std::vector`), and they are reference by their index. It should be well noted that the handle is *always* the index of the gate in the `Gates` array. Such attention is important for input gates.
 
 N.B. A gate always belongs to some circuit, and its handle is circuit-specific.
 
@@ -59,6 +59,10 @@ private:
     // Other VisitXxxKindOfGate logic omitted.
 };
 ```
+
+## `GateSaver` and `GateLoader` structures
+
+Examples of consumers of `GateVisitorCRTP`, used for saving and loading `Gate`s. The structure is used in circuit structure templates for serialisation and deserialisation.
 
 ## `CircuitCRTP<TC>` structure template
 

@@ -13,7 +13,7 @@ Formal parameters:
 
 - `TIt const begin` the begin iterator of `notNoisy` array.
 - `TIt const end` the end iterator of `notNoisy` array.
-- `unsigned count` the count of elements to erase.
+- `size_t count` the number of elements to erase.
 - `TRG &next` the random generator.
 
 Usage:

@@ -2,6 +2,10 @@
 
 The files defines simple wrappers of socket programming in `Networking::SocketWrappers` namespace.
 
+## `PortType` type definition
+
+The alias of `uint16_t`. Represents a port number.
+
 ## `SocketInitialiser` structure
 
 This is a scoped socket initialiser-unintialiser guard.
@@ -19,9 +23,9 @@ Consumes a socket for sending, receiving and skipping bytes.
 Members:
 
 - Constructor `(SOCKET target)`: constructs the consumer with `target` as the socket.
-- `bool Send(unsigned sz, void const *buf) const`: sends the data of size `sz` pointed to by `buf`, returning whether the operation was successful.
-- `bool Receive(unsigned sz, void *buf) const`: receives data of size `sz` and stores them in the region `buf`, returning whether the operation was successful. The call does not return until an error has occurred or the data of size `sz` have been received.
-- `bool Skip(unsigned sz) const`: ignores data of size `sz`. The call does not return until an error has occurred or the data of size `sz` have been ignore. On Windows, the implementation simply copies and discards the data.
+- `bool Send(size_t sz, void const *buf) const`: sends the data of size `sz` pointed to by `buf`, returning whether the operation was successful.
+- `bool Receive(size_t sz, void *buf) const`: receives data of size `sz` and stores them in the region `buf`, returning whether the operation was successful. The call does not return until an error has occurred or the data of size `sz` have been received.
+- `bool Skip(size_t sz) const`: ignores data of size `sz`. The call does not return until an error has occurred or the data of size `sz` have been ignore. On Windows, the implementation simply copies and discards the data.
 
 ## `SocketUnique` structure
 
@@ -40,13 +44,13 @@ Members:
 
 ## `ServerConnectToClient` function
 
-The formal parameter `port` is an `unsigned short` that represents the port on which the server listens. The function creates a server socket, waits for the first client that connects to it, stops listening and returns the socket used to communicate with the connected client.
+The formal parameter `port` is a `PortType` that represents the port on which the server listens. The function creates a server socket, waits for the first client that connects to it, stops listening and returns the socket used to communicate with the connected client.
 
 ## `ClientConnectToServer` function
 
 The formal parameters are:
 
 - `server`: a `char cosnt *`, the IPv4 address of the server.
-- `port`: an `unsigned short`, the port to which the client should connect.
+- `port`: a `PortType`, the port to which the client should connect.
 
 The function tries to connect to the specified port of the specified server and returns the socket used to communicate with the connected server.

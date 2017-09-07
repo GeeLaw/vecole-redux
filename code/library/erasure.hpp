@@ -16,13 +16,13 @@ namespace Erasure
     (
         TRandomAccessInputOutputIt const notErasedBegin,
         TRandomAccessInputOutputIt const notErasedEnd,
-        unsigned count,
+        size_t count,
         TRandomGenerator &next
     )
     {
-        std::uniform_int_distribution<unsigned> iDist
-            (0u, (unsigned)(notErasedEnd - notErasedBegin) - 1u);
-        while (count != 0u)
+        std::uniform_int_distribution<size_t> iDist
+            (0, (size_t)(notErasedEnd - notErasedBegin) - 1);
+        while (count)
         {
             auto toErase = iDist(next);
             if (notErasedBegin[toErase])

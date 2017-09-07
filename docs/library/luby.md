@@ -25,8 +25,8 @@ A consumer of Luby Transform code should index into the underlying storage when 
 
 Template arguments:
 
-- `TALB` is an allocator type for `LubyBin` and defaults to `std::allocator<TALB>`.
-- `TAU` is an allocator type for `unsigned` and defaults to `std::unsigned`.
+- `TALB` is an allocator type for `LubyBin` and defaults to `std::allocator<LubyBin>`.
+- `TAU` is an allocator type for `size_t` and defaults to `std::allocator<size_t>`.
 
 Members:
 
@@ -66,7 +66,7 @@ An iterator-based version of `LTCode::Encode`/`LTCode::Decode`. It is the actual
 Template arguments:
 
 - `TALB`: an allocator type for `LubyBin`.
-- `TAU`: an allocator type for `unsigned`.
+- `TAU`: an allocator type for `size_t`.
 - `TRG`: a random generator type.
 
 Formal parameters:

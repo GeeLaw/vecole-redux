@@ -3,6 +3,7 @@
 
 #include<vector>
 #include"cryptography.hpp"
+#include"helpers.hpp"
 
 #define CREATE_RESETTER_(T) \
     void Reset(T##Data value) { Kind = GateKind::T; As##T = value; } \
@@ -27,22 +28,22 @@ namespace ArithmeticCircuits
 {
     struct Gate;
 
-    typedef unsigned GateHandle;
+    typedef size_t GateHandle;
 
-    constexpr GateHandle InvalidGateHandle = 0u - 1u;
+    constexpr GateHandle InvalidGateHandle = (GateHandle)0 - (GateHandle)1;
 
     namespace GateKind
     {
-        typedef unsigned Type;
-        constexpr Type Invalid = 0u;
-        constexpr Type ConstZero = 1u;
-        constexpr Type ConstOne = 2u;
-        constexpr Type ConstMinusOne = 3u;
-        constexpr Type InputGate = 4u;
-        constexpr Type AdditionGate = 5u;
-        constexpr Type NegationGate = 6u;
-        constexpr Type SubtractionGate = 7u;
-        constexpr Type MultiplicationGate = 8u;
+        typedef size_t Type;
+        constexpr Type Invalid = 0;
+        constexpr Type ConstZero = 1;
+        constexpr Type ConstOne = 2;
+        constexpr Type ConstMinusOne = 3;
+        constexpr Type InputGate = 4;
+        constexpr Type AdditionGate = 5;
+        constexpr Type NegationGate = 6;
+        constexpr Type SubtractionGate = 7;
+        constexpr Type MultiplicationGate = 8;
     };
 
     struct ConstZeroData { };
@@ -51,7 +52,7 @@ namespace ArithmeticCircuits
     struct InputGateData
     {
         AgentFlag::Type Agent;
-        unsigned MajorIndex, MinorIndex;
+        size_t MajorIndex, MinorIndex;
     };
     struct AdditionGateData
     {
@@ -85,6 +86,12 @@ namespace ArithmeticCircuits
             SubtractionGateData AsSubtractionGate;
             MultiplicationGateData AsMultiplicationGate;
         };
+        constexpr Gate() = default;
+        constexpr Gate(Gate const &) = default;
+        constexpr Gate(Gate &&) = default;
+        Gate &operator = (Gate const &) = default;
+        Gate &operator = (Gate &&) = default;
+        ~Gate() = default;
         CREATE_RESETTER_(ConstZero)
         CREATE_RESETTER_(ConstOne)
         CREATE_RESETTER_(ConstMinusOne)
@@ -157,6 +164,148 @@ namespace ArithmeticCircuits
         }
     };
 
+    struct GateSaver : GateVisitorCRTP<GateSaver, void (FILE *)>
+    {
+        void operator () (Gate gate, FILE *fp) const
+        {
+            SaveToImpl(&gate, fp);
+        }
+        void SaveTo(Gate gate, FILE *fp) const
+        {
+            SaveToImpl(&gate, fp);
+        }
+        template <typename TIt>
+        void SaveRange(TIt begin, TIt end, FILE *fp) const
+        {
+            for (; begin != end; ++begin)
+                SaveTo(*begin, fp);
+        }
+        template <typename TIt>
+        void operator () (TIt begin, TIt end, FILE *fp) const
+        {
+            SaveRange(std::move(begin), std::move(end), fp);
+        }
+    private:
+        void SaveToImpl(Gate *gate, FILE *fp) const
+        {
+            fprintf(fp, "%zu %zu", gate->Id, gate->Kind);
+            GateSaver().VisitDispatcher(gate, fp);
+            fputc('\n', fp);
+        }
+        friend class GateVisitorCRTP<GateSaver, void (FILE *)>;
+        void VisitConstZero(Gate *, FILE *) { }
+        void VisitConstOne(Gate *, FILE *) { }
+        void VisitConstMinusOne(Gate *, FILE *) { }
+        void VisitInputGate(Gate *that, FILE *fp)
+        {
+            fprintf(fp, " %zu %zu %zu",
+                that->AsInputGate.Agent,
+                that->AsInputGate.MajorIndex,
+                that->AsInputGate.MinorIndex);
+        }
+        void VisitAdditionGate(Gate *that, FILE *fp)
+        {
+            fprintf(fp, " %zu %zu",
+                that->AsAdditionGate.Augend,
+                that->AsAdditionGate.Addend);
+        }
+        void VisitNegationGate(Gate *that, FILE *fp)
+        {
+            fprintf(fp, " %zu",
+                that->AsNegationGate.Target);
+        }
+        void VisitSubtractionGate(Gate *that, FILE *fp)
+        {
+            fprintf(fp, " %zu %zu",
+                that->AsSubtractionGate.Minuend,
+                that->AsSubtractionGate.Subtrahend);
+        }
+        void VisitMultiplicationGate(Gate *that, FILE *fp)
+        {
+            fprintf(fp, " %zu %zu",
+                that->AsMultiplicationGate.Multiplier,
+                that->AsMultiplicationGate.Multiplicand);
+        }
+        void VisitUnmatched(Gate *, FILE *) { }
+    };
+
+    struct GateLoader : GateVisitorCRTP<GateLoader, bool (FILE *)>
+    {
+        Gate operator () (FILE *fp) const
+        {
+            return LoadFromImpl(fp);
+        }
+        Gate LoadFrom(FILE *fp) const
+        {
+            return LoadFromImpl(fp);
+        }
+        template <typename TIt>
+        bool LoadRange(TIt begin, TIt end, FILE *fp) const
+        {
+            for (; begin != end; ++begin)
+            {
+                auto g = LoadFromImpl(fp);
+                if (g.Id == InvalidGateHandle
+                    || g.Kind == Invalid)
+                    return false;
+                *begin = g;
+            }
+            return true;
+        }
+        template <typename TIt>
+        bool operator () (TIt begin, TIt end, FILE *fp) const
+        {
+            return LoadRange(std::move(begin), std::move(end), fp);
+        }
+    private:
+        Gate LoadFromImpl(FILE *fp) const
+        {
+            Gate gate;
+            if (fscanf(fp, "%zu%zu", &gate.Id, &gate.Kind) != 2
+                || !GateLoader().VisitDispatcher(&gate, fp))
+            {
+                gate.Id = InvalidGateHandle;
+                gate.Kind = GateKind::Invalid;
+            }
+            return gate;
+        }
+        friend class GateVisitorCRTP<GateLoader, bool (FILE *)>;
+        bool VisitConstZero(Gate *, FILE *) { return true; }
+        bool VisitConstOne(Gate *, FILE *) { return true; }
+        bool VisitConstMinusOne(Gate *, FILE *) { return true; }
+        bool VisitInputGate(Gate *that, FILE *fp)
+        {
+            return fscanf(fp, "%zu%zu%zu",
+                &that->AsInputGate.Agent,
+                &that->AsInputGate.MajorIndex,
+                &that->AsInputGate.MinorIndex) == 3;
+        }
+        bool VisitAdditionGate(Gate *that, FILE *fp)
+        {
+            return fscanf(fp, "%zu%zu",
+                &that->AsAdditionGate.Augend,
+                &that->AsAdditionGate.Addend) == 2;
+        }
+        bool VisitNegationGate(Gate *that, FILE *fp)
+        {
+            return fscanf(fp, "%zu",
+                &that->AsNegationGate.Target) == 1;
+        }
+        bool VisitSubtractionGate(Gate *that, FILE *fp)
+        {
+            return fscanf(fp, "%zu%zu",
+                &that->AsSubtractionGate.Minuend,
+                &that->AsSubtractionGate.Subtrahend) == 2;
+        }
+        bool VisitMultiplicationGate(Gate *that, FILE *fp)
+        {
+            return fscanf(fp, "%zu%zu",
+                &that->AsMultiplicationGate.Multiplier,
+                &that->AsMultiplicationGate.Multiplicand) == 2;
+        }
+        bool VisitUnmatched(Gate *, FILE *) { return false; }
+    };
+
     template <typename TCircuit>
     struct CircuitCRTP
     {
@@ -185,6 +334,41 @@ namespace ArithmeticCircuits
         GateHandle AliceInputBegin, AliceInputEnd;
         GateHandle BobInputBegin, BobInputEnd;
         HandleVec AliceOutput;
+
+        void SaveTo(FILE *fp) const
+        {
+            GateSaver gs;
+            fprintf(fp, "%zu %zu %zu %zu %zu %zu\n",
+                Gates.size(),
+                AliceInputBegin, AliceInputEnd,
+                BobInputBegin, BobInputEnd,
+                AliceOutput.size());
+            gs(Gates.data(), Gates.data() + Gates.size(), fp);
+            Helpers::SaveSizeTRange(
+                AliceOutput.data(),
+                AliceOutput.data() + AliceOutput.size(),
+                fp);
+        }
+
+        bool LoadFrom(FILE *fp)
+        {
+            GateLoader gl;
+            size_t gatesSz, aoSize;
+            if (fscanf(fp, "%zu%zu%zu%zu%zu%zu", &gatesSz,
+                &AliceInputBegin, &AliceInputEnd,
+                &BobInputBegin, &BobInputEnd,
+                &aoSize) != 6)
+                return false;
+            Gates.clear();
+            Gates.resize(gatesSz);
+            AliceOutput.clear();
+            AliceOutput.resize(aoSize);
+            return gl(Gates.data(), Gates.data() + Gates.size(), fp)
+                && Helpers::LoadSizeTRange(
+                    AliceOutput.data(),
+                    AliceOutput.data() + AliceOutput.size(),
+                    fp);
+        }
     };
 
 }

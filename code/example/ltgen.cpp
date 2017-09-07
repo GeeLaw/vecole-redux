@@ -50,7 +50,7 @@ int main(int argc, char **argv)
     for (; rsd.OutputSymbolSizeCached > v;
         rsd.C -= 1e-5, rsd.InvalidateCache())
         ;
-    fprintf(stderr, "Found c = %f giving v = %u.\n",
+    fprintf(stderr, "Found c = %f giving v = %zu.\n",
         rsd.C, rsd.OutputSymbolSizeCached);
     LTCode<> code;
     double bestSuccessRate = 0.0;

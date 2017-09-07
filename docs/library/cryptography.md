@@ -4,7 +4,7 @@ This file defines utilities in `Cryptography` namespace. Most of them are crypto
 
 ## `AgentFlag` enumeration
 
-The namespace should be considered as an enumeration type. The `Type` type is an alias of `unsigned`, which holds the enumeration value. The enumeration is *flagged*, i.e., each bit implies the presence of an agent. `Alice`, `Bob` and `Random` occupy the most insignificant, the second most insignificant and the 18-th most insignificant bit, respectively.
+The namespace should be considered as an enumeration type. The `Type` type is an alias of `size_t`, which holds the enumeration value. The enumeration is *flagged*, i.e., each bit implies the presence of an agent. `Alice`, `Bob` and `Random` occupy the most insignificant, the second most insignificant and the 18-th most insignificant bit, respectively.
 
 ## `ExtendedEuclideanImpl_` namespace
 

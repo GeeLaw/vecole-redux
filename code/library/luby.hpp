@@ -7,6 +7,7 @@
 #include<utility>
 #include<random>
 #include<cstring>
+#include"helpers.hpp"
 
 namespace Encoding
 {
@@ -17,7 +18,7 @@ namespace LubyTransform
         /* k in LT Codes (FOCS 02)
          * w in vector OLE
          */
-        unsigned InputSymbolSize;
+        size_t InputSymbolSize;
         /* c in LT Codes */
         double C;
         /* delta in LT Codes */
@@ -25,39 +26,39 @@ namespace LubyTransform
         /* R in LT Codes */
         double RCached;
         /* k/R in LT Codes */
-        unsigned KOverRCached;
+        size_t KOverRCached;
         /* beta in LT Codes */
         double BetaCached;
         /* v in LT Codes
          * rounded up to a multiple of 4
          */
-        unsigned OutputSymbolSizeCached;
+        size_t OutputSymbolSizeCached;
         /* Call this method after non-cache
          * values have been edited.
          */
         void InvalidateCache()
         {
             RCached = C * std::log(InputSymbolSize / Delta) * std::sqrt((double)InputSymbolSize);
-            KOverRCached = (unsigned)(InputSymbolSize / RCached + 0.5);
+            KOverRCached = (size_t)(InputSymbolSize / RCached + 0.5);
             auto beta = std::log(RCached / Delta);
-            for (unsigned i = KOverRCached - 1u; i != 0u; --i)
+            for (size_t i = KOverRCached - 1; i; --i)
                 beta += 1.0 / i;
             BetaCached = 1.0 + beta * RCached / InputSymbolSize;
-            OutputSymbolSizeCached = (unsigned)(InputSymbolSize * BetaCached + 0.5);
+            OutputSymbolSizeCached = (size_t)(InputSymbolSize * BetaCached + 0.5);
             /* Round up to a multiple of 4 */
             OutputSymbolSizeCached += ((4 - (OutputSymbolSizeCached & 3)) & 3);
         }
         /* Ideal ingredient, i is 1-based. */
-        double Rho(unsigned i) const
+        double Rho(size_t i) const
         {
-            if (i == 1u)
+            if (i == 1)
                 return 1.0 / InputSymbolSize;
             if (i > InputSymbolSize)
                 return 0.0;
-            return 1.0 / i / (i - 1u);
+            return 1.0 / i / (i - 1);
         }
         /* Added part for robust distribution. */
-        double Tau(unsigned i) const
+        double Tau(size_t i) const
         {
             if (i < KOverRCached)
                 return RCached / i / InputSymbolSize;
@@ -66,20 +67,20 @@ namespace LubyTransform
             return RCached * std::log(RCached / Delta) / InputSymbolSize;
         }
         /* The distribution itself. */
-        double Mu(unsigned i) const
+        double Mu(size_t i) const
         {
             return (Rho(i) + Tau(i)) / BetaCached;
         }
         /* r in [0, 1]
          * increasing function of r
          */
-        unsigned SampleDegree(double r) const
+        size_t SampleDegree(double r) const
         {
             if (r >= 1.0)
                 return InputSymbolSize;
             if (r <= 0.0)
-                return 1u;
-            unsigned d = 0u;
+                return 1;
+            size_t d = 0;
             for (auto s = 0.0; s < r && d != InputSymbolSize; s += Mu(++d))
                 ;
             return d;
@@ -88,8 +89,8 @@ namespace LubyTransform
 
     struct LubyBin
     {
-        unsigned Index;
-        unsigned Degree;
+        size_t Index;
+        size_t Degree;
         template <typename TRandomIt>
         TRandomIt const GetBegin(TRandomIt const &i) const
         {
@@ -119,7 +120,7 @@ namespace LubyTransform
         /* [binsBegin, binsEnd) = LubyBin[encodedSize] */
         TForwardInputIt1 binsBegin,
         TForwardInputIt1 const &binsEnd,
-        /* unsigned[] */
+        /* size_t[] */
         TRandomAccessInputIt2 const &storage,
         /* F[encodedSize] = 0 */
         TForwardInputOutputIt3 encoded,
@@ -155,7 +156,7 @@ namespace LubyTransform
         /* [binsBegin, binsEnd) = LubyBin[encodedSize], destructive */
         TBidirectionalInputOutputIt2 const &binsBegin,
         TBidirectionalInputOutputIt2 binsEnd,
-        /* unsigned[], destructive */
+        /* size_t[], destructive */
         TRandomAccessInputOutputIt3 const &storage,
         /* F[decodedSize] = 0 */
         TRandomAccessInputOutputIt4 const &decoded,
@@ -167,7 +168,7 @@ namespace LubyTransform
         TBidirectionalInputOutputIt6 encodedEnd
     )
     {
-        unsigned remaining = solvedEnd - solvedBegin;
+        size_t remaining = solvedEnd - solvedBegin;
         /* Round 1:
          *     - release deg = 1
          *     - try releasing deg = 2
@@ -186,9 +187,9 @@ namespace LubyTransform
                 if (wasAdvancing ? *notNoisyBegin++ : *--notNoisyEnd)
                 {
                     auto const deg = bins->Degree;
-                    if (deg == 1u)
+                    if (deg == 1)
                     {
-                        unsigned t = storage[bins->Index];
+                        size_t t = storage[bins->Index];
                         if (!solvedBegin[t])
                         {
                             solvedBegin[t] = true;
@@ -196,10 +197,10 @@ namespace LubyTransform
                             decoded[t] = std::move(*encoded);
                         }
                     }
-                    else if (deg == 2u)
+                    else if (deg == 2)
                     {
-                        unsigned const t1 = storage[bins->Index];
-                        unsigned const t2 = storage[bins->Index + 1];
+                        size_t const t1 = storage[bins->Index];
+                        size_t const t2 = storage[bins->Index + 1];
                         if (solvedBegin[t1] && !solvedBegin[t2])
                         {
                             solvedBegin[t2] = true;
@@ -217,7 +218,7 @@ namespace LubyTransform
                             shouldAdvance = true;
                         }
                     }
-                    else if (deg > 2u)
+                    else if (deg > 2)
                     {
                         shouldAdvance = true;
                     }
@@ -238,7 +239,7 @@ namespace LubyTransform
         } while (false);
         /* Round 2: solve the rest */
         for (bool newRelease = (remaining != solvedEnd - solvedBegin);
-            newRelease && remaining != 0u; )
+            newRelease && remaining; )
         {
             newRelease = false;
             auto bins = binsBegin;
@@ -259,23 +260,23 @@ namespace LubyTransform
                     {
                         ++storageIt;
                     }
-                unsigned newDeg = storageEnd - storageBegin;
+                size_t newDeg = storageEnd - storageBegin;
                 /* If remaining degree is 1:
                  *     - release this position
                  *     - set newRelease
                  *     - set newDeg = 0 for removal
                  */
-                if (newDeg == 1u)
+                if (newDeg == 1)
                 {
                     solvedBegin[*storageBegin] = true;
                     --remaining;
                     decoded[*storageBegin] = std::move(*encoded);
                     newRelease = true;
-                    newDeg = 0u;
+                    newDeg = 0;
                 }
                 /* Either move the last bin here (current bin is discarded)
                  * or advance the iterators (current bin is kept) */
-                if (newDeg != 0u)
+                if (newDeg)
                 {
                     bins->Degree = newDeg;
                     ++bins;
@@ -288,22 +289,22 @@ namespace LubyTransform
                 }
             }
         }
-        return remaining == 0u;
+        return !remaining;
     }
 
     template
     <
         typename TAllocLubyBin = std::allocator<LubyBin>,
-        typename TAllocUnsigned = std::allocator<unsigned>
+        typename TAllocSizeT = std::allocator<size_t>
     >
     struct LTCode
     {
         typedef std::vector<LubyBin, TAllocLubyBin> LubyBinVec;
-        typedef std::vector<unsigned, TAllocUnsigned> UnsignedVec;
+        typedef std::vector<size_t, TAllocSizeT> SizeTVec;
 
-        unsigned InputSymbolSize;
+        size_t InputSymbolSize;
         LubyBinVec Bins;
-        UnsignedVec Storage;
+        SizeTVec Storage;
 
         LTCode() = default;
         LTCode(LTCode const &) = default;
@@ -323,7 +324,7 @@ namespace LubyTransform
             std::memcpy(Bins.data(), other.Bins.data(), szBins * sizeof(LubyBin));
             auto const szStorage = other.Storage.size();
             Storage.resize(szStorage);
-            std::memcpy(Storage.data(), other.Storage.data(), szStorage * sizeof(unsigned));
+            std::memcpy(Storage.data(), other.Storage.data(), szStorage * sizeof(size_t));
             return *this;
         }
 
@@ -386,70 +387,71 @@ namespace LubyTransform
 
         bool LoadFrom(FILE *fp)
         {
-            if (fscanf(fp, "%u", &InputSymbolSize) != 1)
+            if (fscanf(fp, "%zu", &InputSymbolSize) != 1)
                 return false;
-            unsigned oss;
-            if (fscanf(fp, "%u", &oss) != 1)
+            size_t oss;
+            if (fscanf(fp, "%zu", &oss) != 1)
                 return false;
+            Bins.clear();
             Bins.resize(oss);
-            unsigned totalDeg = 0u;
+            size_t totalDeg = 0;
             for (auto bin = Bins.data(),
                 binEnd = Bins.data() + oss;
                 bin != binEnd; ++bin)
             {
-                if (fscanf(fp, "%u", &bin->Degree) != 1)
+                if (fscanf(fp, "%zu", &bin->Degree) != 1)
                     return false;
                 bin->Index = totalDeg;
                 totalDeg += bin->Degree;
             }
+            Storage.clear();
             Storage.resize(totalDeg);
-            for (auto storage = Storage.data(),
-                storageEnd = Storage.data() + totalDeg;
-                storage != storageEnd; ++storage)
-                if (fscanf(fp, "%u", storage) != 1)
-                    return false;
-            return true;
+            return Helpers::LoadSizeTRange(
+                Storage.data(),
+                Storage.data() + Storage.size(),
+                fp);
         }
 
         void SaveTo(FILE *fp) const
         {
-            fprintf(fp, "%u %u\n", InputSymbolSize, (unsigned)Bins.size());
+            fprintf(fp, "%zu %zu\n", InputSymbolSize, Bins.size());
             auto const binEnd = Bins.data() + Bins.size();
             for (auto bin = Bins.data(); bin != binEnd; ++bin)
-                fprintf(fp, "%u ", bin->Degree);
+                fprintf(fp, "%zu ", bin->Degree);
             fputc('\n', fp);
             for (auto bin = Bins.data(); bin != binEnd; ++bin, fputc('\n', fp))
                 for (auto i = bin->GetBegin(Storage.data()),
                     j = bin->GetEnd(Storage.data());
                     i != j; ++i)
-                    fprintf(fp, "%u ", *i);
+                    fprintf(fp, "%zu ", *i);
+            fputc('\n', fp);
         }
     };
 
     template
     <
         typename TAllocLubyBin,
-        typename TAllocUnsigned,
+        typename TAllocSizeT,
         typename TRandomGenerator
     >
     void CreateLTCode
     (
         RobustSolitonDistribution const &dist,
-        LTCode<TAllocLubyBin, TAllocUnsigned> &code,
+        LTCode<TAllocLubyBin, TAllocSizeT> &code,
         TRandomGenerator &next
     )
     {
         std::uniform_real_distribution<double> rDist(0.0, 1.0);
-        std::uniform_int_distribution<unsigned> iDist(0u, dist.InputSymbolSize - 1u);
-        std::set<unsigned, std::less<unsigned>, TAllocUnsigned> currentBin;
+        std::uniform_int_distribution<size_t> iDist(0, dist.InputSymbolSize - 1);
+        std::set<size_t, std::less<size_t>, TAllocSizeT> currentBin;
         code.InputSymbolSize = dist.InputSymbolSize;
         code.Bins.resize(dist.OutputSymbolSizeCached);
         code.Storage.clear();
-        for (unsigned i = 0u;
+        for (size_t i = 0;
             i != dist.OutputSymbolSizeCached;
             ++i)
         {
-            unsigned deg = dist.SampleDegree(rDist(next));
+            size_t deg = dist.SampleDegree(rDist(next));
             currentBin.clear();
             while (currentBin.size() != deg)
                 currentBin.insert(iDist(next));

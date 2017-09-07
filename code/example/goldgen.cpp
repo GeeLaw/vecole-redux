@@ -42,18 +42,22 @@ bool ParseCommandLine(int const argc, char ** const argv)
 {
     if (argc < 4 || argc > 5)
         return false;
-    if (!ParseUInt(argv[1], "a", &gg.A, 3, 50))
+    unsigned aa, bb, il, ol;
+    if (!ParseUInt(argv[1], "a", &aa, 3, 50))
         return false;
-    if (!ParseUInt(argv[2], "b", &gg.B, 3, 50))
+    if (!ParseUInt(argv[2], "b", &bb, 3, 50))
         return false;
-    if (!ParseUInt(argv[3], "i", &gg.InputLength,
+    if (!ParseUInt(argv[3], "i", &il,
         gg.A + gg.B + 100, 20000))
         return false;
-    gg.OutputLength = gg.InputLength * gg.InputLength;
-    if (argc >= 5 && !ParseUInt(argv[4], "o", &gg.OutputLength,
-        gg.InputLength,
-        gg.InputLength * gg.InputLength * gg.InputLength))
+    ol = il * il;
+    if (argc >= 5 && !ParseUInt(argv[4], "o", &ol,
+        il, il * il * il))
         return false;
+    gg.A = aa;
+    gg.B = bb;
+    gg.InputLength = il;
+    gg.OutputLength = ol;
     return true;
 }
 

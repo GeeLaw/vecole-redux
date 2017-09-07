@@ -5,6 +5,7 @@
 #include<vector>
 #include"cryptography.hpp"
 #include"arithmetic_circuits.hpp"
+#include"helpers.hpp"
 
 #define THREE_TYPENAMES_ \
     typename TCAllocGate, \
@@ -44,6 +45,27 @@ namespace Garbled
     struct KeyPair
     {
         GateHandle Coefficient, Intercept;
+        template <typename TIt>
+        static void SaveRange(TIt begin, TIt end, FILE *fp)
+        {
+            for (; begin != end; ++begin)
+            {
+                auto v = *begin;
+                fprintf(fp, "%zu %zu\n", v.Coefficient, v.Intercept);
+            }
+        }
+        template <typename TIt>
+        static void LoadRange(TIt begin, TIt end, FILE *fp)
+        {
+            for (; begin != end; ++begin)
+            {
+                KeyPair kp;
+                if (fscanf(fp, "%zu%zu", &kp.Coefficient, &kp.Intercept) != 2)
+                    return false;
+                *begin = kp;
+            }
+            return true;
+        }
     };
 
     template
@@ -70,9 +92,95 @@ namespace Garbled
         {
             auto const randomHandle
                 = this->InsertGate(InputGateData{ AgentFlag::Random,
-                    Randomness.size(), 0u });
+                    Randomness.size(), 0 });
             Randomness.push_back(randomHandle);
             return randomHandle;
+        }
+
+        void SaveTo(FILE *fp) const
+        {
+            GateSaver gs;
+            fprintf(fp, "%zu %zu %zu %zu %zu\n",
+                Gates.size(),
+                Randomness.size(),
+                OfflineEncoding.size(),
+                AliceEncoding.size(),
+                BobEncoding.size());
+            gs(Gates.data(), Gates.data() + Gates.size(), fp);
+            Helpers::SaveSizeTRange(
+                Randomness.data(),
+                Randomness.data() + Randomness.size(),
+                fp);
+            Helpers::SaveSizeTRange(
+                OfflineEncoding.data(),
+                OfflineEncoding.data() + OfflineEncoding.size(),
+                fp);
+            for (auto i = AliceEncoding.data(),
+                iend = AliceEncoding.data() + AliceEncoding.size();
+                i != iend; ++i)
+            {
+                fprintf(fp, "%zu\n", i->size());
+                KeyPair::SaveRange(i->data(), i->data() + i->size(), fp);
+            }
+            for (auto i = BobEncoding.data(),
+                iend = BobEncoding.data() + BobEncoding.size();
+                i != iend; ++i)
+            {
+                fprintf(fp, "%zu\n", i->size());
+                KeyPair::SaveRange(i->data(), i->data() + i->size(), fp);
+            }
+        }
+
+        bool LoadFrom(FILE *fp)
+        {
+            GateLoader gl;
+            size_t gatesSz, randomSz, oeSz, aeSz, beSz;
+            if (fscanf(fp, "%zu%zu%zu%zu%zu", &gatesSz, &randomSz,
+                &oeSz, &aeSz, &beSz) != 5)
+                return false;
+            Gates.clear();
+            Gates.resize(sz);
+            Randomness.clear();
+            Randomness.resize(sz);
+            OfflineEncoding.clear();
+            OfflineEncoding.resize(sz);
+            AliceEncoding.clear();
+            AliceEncoding.resize(sz);
+            BobEncoding.clear();
+            BobEncoding.resize(sz);
+            if (!gl(Gates.data(), Gates.data() + Gates.size(), fp)
+                || !Helpers::LoadSizeTRange(
+                    Randomness.data(),
+                    Randomness.data() + Randomness.size(),
+                    fp)
+                || !Helpers::LoadSizeTRange(
+                    OfflineEncoding.data(),
+                    OfflineEncoding.data() + OfflineEncoding.size(),
+                    fp))
+                return false;
+            for (auto i = AliceEncoding.data(),
+                iend = AliceEncoding.data() + AliceEncoding.size();
+                i != iend; ++i)
+            {
+                size_t sz;
+                if (fscanf(fp, "%zu", &sz) != 1)
+                    return false;
+                i->resize(sz);
+                if (!Helpers::LoadSizeTRange(i->data(), i->data() + i->size(), fp))
+                    return false;
+            }
+            for (auto i = BobEncoding.data(),
+                iend = BobEncoding.data() + BobEncoding.size();
+                i != iend; ++i)
+            {
+                size_t sz;
+                if (fscanf(fp, "%zu", &sz) != 1)
+                    return false;
+                i->resize(sz);
+                if (!Helpers::LoadSizeTRange(i->data(), i->data() + i->size(), fp))
+                    return false;
+            }
+            return true;
         }
     };
 
@@ -93,6 +201,86 @@ namespace Garbled
         HandleVec2 AliceEncoding;
         HandleVec2 BobEncoding;
         HandleVec AliceOutput;
+
+        void SaveTo(FILE *fp) const
+        {
+            GateSaver gs;
+            fprintf(fp, "%zu %zu %zu %zu %zu\n",
+                Gates.size(),
+                OfflineEncoding.size(),
+                AliceEncoding.size(),
+                BobEncoding.size(),
+                AliceOutput.size());
+            gs(Gates.data(), Gates.data() + Gates.size(), fp);
+            Helpers::SaveSizeTRange(
+                OfflineEncoding.data(),
+                OfflineEncoding.data() + OfflineEncoding.size(),
+                fp);
+            for (auto i = AliceEncoding.data(),
+                iend = AliceEncoding.data() + AliceEncoding.size();
+                i != iend; ++i)
+            {
+                fprintf(fp, "%zu\n", i->size());
+                Helpers::SaveSizeTRange(i->data(), i->data() + i->size(), fp);
+            }
+            for (auto i = BobEncoding.data(),
+                iend = BobEncoding.data() + BobEncoding.size();
+                i != iend; ++i)
+            {
+                fprintf(fp, "%zu\n", i->size());
+                Helpers::SaveSizeTRange(i->data(), i->data() + i->size(), fp);
+            }
+            Helpers::SaveSizeTRange(
+                AliceOutput.data(),
+                AliceOutput.data() + AliceOutput.size(),
+                fp);
+        }
+
+        bool LoadFrom(FILE *fp)
+        {
+            GateLoader gl;
+            size_t gatesSz, oeSz, aeSz, beSz, aoSz;
+            if (fscanf(fp, "%zu%zu%zu%zu%zu", &gatesSz,
+                &oeSz, &aeSz, &beSz, &aoSz) != 5)
+                return false;
+            Gates.clear(); Gates.resize(gatesSz);
+            OfflineEncoding.clear(); OfflineEncoding.resize(oeSz);
+            AliceEncoding.clear(); AliceEncoding.resize(aeSz);
+            BobEncoding.clear(); BobEncoding.resize(beSz);
+            AliceOutput.clear(); AliceOutput.resize(aoSz);
+            if (!gl(Gates.data(), Gates.data() + Gates.size(), fp)
+                || !Helpers::LoadSizeTRange(
+                    OfflineEncoding.data(),
+                    OfflineEncoding.data() + OfflineEncoding.size(),
+                    fp))
+                return false;
+            for (auto i = AliceEncoding.data(),
+                iend = AliceEncoding.data() + AliceEncoding.size();
+                i != iend; ++i)
+            {
+                size_t sz;
+                if (fscanf(fp, "%zu", &sz) != 1)
+                    return false;
+                i->resize(sz);
+                if (!Helpers::LoadSizeTRange(i->data(), i->data() + i->size(), fp))
+                    return false;
+            }
+            for (auto i = BobEncoding.data(),
+                iend = BobEncoding.data() + BobEncoding.size();
+                i != iend; ++i)
+            {
+                size_t sz;
+                if (fscanf(fp, "%zu", &sz) != 1)
+                    return false;
+                i->resize(sz);
+                if (!Helpers::LoadSizeTRange(i->data(), i->data() + i->size(), fp))
+                    return false;
+            }
+            return Helpers::LoadSizeTRange(
+                AliceOutput.data(),
+                AliceOutput.data() + AliceOutput.size(),
+                fp);
+        }
     };
 
     namespace _CompilerImpl
@@ -171,7 +359,7 @@ namespace Garbled
                 encoder.OfflineEncoding.push_back(b);
                 auto const decodingHandle
                     = decoder.InsertGate(
-                        InputGateData{ AgentFlag::None, decoder.OfflineEncoding.size(), 0u });
+                        InputGateData{ AgentFlag::None, decoder.OfflineEncoding.size(), 0 });
                 decoder.OfflineEncoding.push_back(decodingHandle);
                 return decodingHandle;
             }
@@ -184,7 +372,7 @@ namespace Garbled
                 encoder.OfflineEncoding.push_back(encodingHandle);
                 auto const decodingHandle
                     = decoder.InsertGate(
-                        InputGateData{ AgentFlag::None, decoder.OfflineEncoding.size(), 0u });
+                        InputGateData{ AgentFlag::None, decoder.OfflineEncoding.size(), 0 });
                 decoder.OfflineEncoding.push_back(decodingHandle);
                 return decodingHandle;
             }
@@ -197,7 +385,7 @@ namespace Garbled
                 encoder.OfflineEncoding.push_back(encodingHandle);
                 auto const decodingHandle
                     = decoder.InsertGate(
-                        InputGateData{ AgentFlag::None, decoder.OfflineEncoding.size(), 0u });
+                        InputGateData{ AgentFlag::None, decoder.OfflineEncoding.size(), 0 });
                 decoder.OfflineEncoding.push_back(decodingHandle);
                 return decodingHandle;
             }
