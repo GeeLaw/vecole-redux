@@ -38,6 +38,8 @@ namespace Networking
 {
 namespace SocketWrappers
 {
+    typedef uint16_t PortType;
+
     struct SocketInitialiser
     {
         SocketInitialiser()
@@ -75,39 +77,39 @@ namespace SocketWrappers
         SocketConsumer &operator = (SocketConsumer const &) = default;
         SocketConsumer &operator = (SocketConsumer &&) = default;
         ~SocketConsumer() = default;
-        bool Send(unsigned sz, void const *buf) const
+        bool Send(size_t sz, void const *buf) const
         {
             for (auto buffer = (uint8_t const *)buf; sz; )
             {
-                int length = (sz < 8388608 ? sz : 8388608);
+                int length = (int)(sz < 8388608 ? sz : 8388608);
                 int newlySent = send(socket_, (char const *)buffer, length, 0);
                 if (newlySent == -1)
                 {
                     fprintf(stderr, "send failed with %d.\n", WSAGetLastError());
                     return false;
                 }
-                sz -= (unsigned)newlySent;
+                sz -= (size_t)newlySent;
                 buffer += newlySent;
             }
             return true;
         }
-        bool Receive(unsigned sz, void *buf) const
+        bool Receive(size_t sz, void *buf) const
         {
             for (auto buffer = (uint8_t *)buf; sz; )
             {
-                int length = (sz < 8388608 ? sz : 8388608);
+                int length = (int)(sz < 8388608 ? sz : 8388608);
                 int newlyReceived = recv(socket_, (char *)buffer, length, 0);
                 if (newlyReceived == -1)
                 {
                     fprintf(stderr, "recv failed with %d.\n", WSAGetLastError());
                     return false;
                 }
-                sz -= (unsigned)newlyReceived;
+                sz -= (size_t)newlyReceived;
                 buffer += newlyReceived;
             }
             return true;
         }
-        bool Skip(unsigned sz) const
+        bool Skip(size_t sz) const
         {
             #ifndef _WIN32
                 /* Use MSG_TRUNC. Win32 is known to not support it. */
@@ -120,14 +122,14 @@ namespace SocketWrappers
             #endif
             while (sz)
             {
-                int length = (sz < 8388608 ? sz : 8388608);
+                int length = (int)(sz < 8388608 ? sz : 8388608);
                 int newlySkipped = recv(socket_, garbage, length, truncFlag);
                 if (newlySkipped == -1)
                 {
                     fprintf(stderr, "recv failed with %d.\n", WSAGetLastError());
                     return false;
                 }
-                sz -= newlySkipped;
+                sz -= (size_t)newlySkipped;
             }
             return true;
         }
@@ -181,7 +183,7 @@ namespace SocketWrappers
         SOCKET socket_;
     };
 
-    SOCKET ServerConnectToClient(unsigned short port)
+    SOCKET ServerConnectToClient(PortType port)
     {
         SOCKET serverSock = socket(AF_INET, SOCK_STREAM, 0);
         if (serverSock == INVALID_SOCKET)
@@ -227,7 +229,7 @@ namespace SocketWrappers
         return sockUnique.Release();
     }
 
-    SOCKET ClientConnectToServer(char const *server, unsigned short port)
+    SOCKET ClientConnectToServer(char const *server, PortType port)
     {
         SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
         if (sock == INVALID_SOCKET)

@@ -105,10 +105,10 @@ struct
 {
     bool operator () (Zp &zp, FILE *fp) const
     {
-        unsigned uv;
-        if (fscanf(fp, "%u", &uv) != 1)
+        uintmax_t uv;
+        if (fscanf(fp, "%ju", &uv) != 1)
             return false;
-        zp = uv;
+        zp = (uint32_t)uv;
         return true;
     }
 } const LoadZp;

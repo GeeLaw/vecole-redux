@@ -4,34 +4,35 @@
 #include<set>
 #include<vector>
 #include<random>
+#include"helpers.hpp"
 
 namespace Cryptography
 {
 namespace Goldreich
 {
-    template <typename TAllocUnsigned = std::allocator<unsigned>>
+    template <typename TAllocSizeT = std::allocator<size_t>>
     struct GoldreichGraph
     {
-        typedef std::vector<unsigned, TAllocUnsigned> UnsignedVec;
+        typedef std::vector<size_t, TAllocSizeT> SizeTVec;
 
-        unsigned InputLength, OutputLength;
-        unsigned A, B;
-        UnsignedVec Storage;
+        size_t InputLength, OutputLength;
+        size_t A, B;
+        SizeTVec Storage;
 
         template <typename TRandomGenerator>
         void Resample(TRandomGenerator &next)
         {
-            std::uniform_int_distribution<unsigned> indexDist(0u, InputLength - 1u);
-            std::set<unsigned> used;
+            std::uniform_int_distribution<size_t> indexDist(0, InputLength - 1);
+            std::set<size_t> used;
             Storage.clear();
             Storage.resize((A + B) * OutputLength);
             auto it = Storage.data();
-            for (unsigned i = OutputLength; i != 0u; --i)
+            for (size_t i = OutputLength; i; --i)
             {
                 used.clear();
-                for (unsigned j = A + B; j != 0u; --j)
+                for (size_t j = A + B; j; --j)
                 {
-                    unsigned index;
+                    size_t index;
                     do
                         index = indexDist(next);
                     while (!used.insert(index).second);
@@ -42,26 +43,26 @@ namespace Goldreich
 
         void SaveTo(FILE *fp) const
         {
-            fprintf(fp, "%u %u %u %u %u\n", InputLength, OutputLength,
-                A, B, (unsigned)Storage.size());
-            for (auto i = Storage.data(), j = Storage.data() + Storage.size();
-                i != j; ++i)
-                fprintf(fp, "%u ", *i);
-            fputc('\n', fp);
+            fprintf(fp, "%zu %zu %zu %zu %zu\n", InputLength, OutputLength,
+                A, B, Storage.size());
+            Helpers::SaveSizeTRange(
+                Storage.data(),
+                Storage.data() + Storage.size(),
+                fp);
         }
 
         bool LoadFrom(FILE *fp)
         {
-            unsigned sz;
-            if (fscanf(fp, "%u%u%u%u%u", &InputLength, &OutputLength,
+            size_t sz;
+            if (fscanf(fp, "%zu%zu%zu%zu%zu", &InputLength, &OutputLength,
                 &A, &B, &sz) != 5)
                 return false;
             Storage.clear();
             Storage.resize(sz);
-            for (auto i = Storage.data(); sz--; ++i)
-                if (fscanf(fp, "%u", i) != 1)
-                    return false;
-            return true;
+            return Helpers::LoadSizeTRange(
+                Storage.data(),
+                Storage.data() + Storage.size(),
+                fp);
         }
     };
 }

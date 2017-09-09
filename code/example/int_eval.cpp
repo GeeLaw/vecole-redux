@@ -137,7 +137,7 @@ int main()
             encoderPerformer.Evaluate(oe);
             offlineEncodingResult.push_back(memory[oe].Value);
         }
-        printf("%d Alice's input(s):\n", encoderStorage.AliceEncoding.size());
+        printf("%zu Alice's input(s):\n", encoderStorage.AliceEncoding.size());
         aliceEncodingResult.resize(encoderStorage.AliceEncoding.size());
         for (int i = 0, j = encoderStorage.AliceEncoding.size();i != j;++i)
         {
@@ -151,7 +151,7 @@ int main()
                 target.push_back(val * memory[kp.Coefficient].Value + memory[kp.Intercept].Value);
             }
         }
-        printf("%d Bob's input(s):\n", encoderStorage.BobEncoding.size());
+        printf("%zu Bob's input(s):\n", encoderStorage.BobEncoding.size());
         bobEncodingResult.resize(encoderStorage.BobEncoding.size());
         for (int i = 0, j = encoderStorage.BobEncoding.size();i != j;++i)
         {

@@ -6,6 +6,8 @@ This file defines utilities in `Cryptography::ArithmeticCircuits::Garbled` names
 
 Pair of `GateHandle`s in an affine encoding specifying the linear part (`Coefficient`) and the constant part (`Intercept`).
 
+The structure has two static member function templates `SaveRange` and `LoadRange` for serialisation and deserialisation.
+
 ## `EncodingCircuit<TAG, TAKP, TAKPV, TAH>` structure template
 
 It represents an encoding circuit. The template arguments are allocators. Members:
@@ -15,6 +17,7 @@ It represents an encoding circuit. The template arguments are allocators. Member
 - `OfflineEncoding` is a vector of `GateHandle`s, storing the gates that produce the offline part (constant part) of the encoding.
 - `AliceEncoding` is a jagged two-dimensional vector of `KeyPair`s, the k-th vector of which is stores the gates that produce the key pairs of the k-th input from Alice.
 - `BobEncoding` is similar to `AliceEncoding`, just for Bob.
+- `SaveTo` and `LoadFrom` (de)serialises the structure.
 
 ## `DecodingCircuit<TAG, TAH, TAHV>` structure template
 
@@ -25,6 +28,7 @@ It represents a decoding circuit. The template arguments are allocators. Members
 - `AliceEncoding` is a jagged two-dimensional vector of `GateHandle`s, which are input gates in the decoding circuit and should be fed with the results of vector-OLE (suppose Bob does the random encoding).
 - `BobEncoding` is similar to `AliceEncoding`, which are input gates in the decoding circuit and should be fed with the encoding for Bob’s part of input.
 - `AliceOutput` is a vector of `GateHandle`s, which produce the output for Alice.
+- `SaveTo` and `LoadFrom` (de)serialises the structure.
 
 ## `CompileToDare` function template
 

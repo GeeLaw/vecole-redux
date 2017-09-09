@@ -10,7 +10,7 @@ using namespace Cryptography;
 using namespace Cryptography::ArithmeticCircuits;
 using namespace Cryptography::ArithmeticCircuits::Garbled;
 
-typedef unsigned Precedence;
+typedef size_t Precedence;
 constexpr Precedence HighestPrecedence = 0x0;
 constexpr Precedence VariablePrecedence = 0x10;
 constexpr Precedence NegationPrecedence = 0x20;
@@ -66,7 +66,7 @@ private:
             owner = "B";
         if (g.Agent == AgentFlag::Random)
             owner = "R";
-        printf("%s[%u][%u]", owner, g.MajorIndex, g.MinorIndex);
+        printf("%s[%zu][%zu]", owner, g.MajorIndex, g.MinorIndex);
     }
     void VisitAdditionGate(Gate *that, Precedence outer)
     {

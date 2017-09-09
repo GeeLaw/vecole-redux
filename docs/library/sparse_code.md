@@ -17,8 +17,8 @@ Template arguments:
 
 Formal parameters:
 
-- `D`: an `unsigned`, the sparsity parameter that specifies the entries each row;
-- `count`: an `unsigned`, the number of rows;
+- `D`: a `size_t`, the sparsity parameter that specifies the entries each row;
+- `count`: a `size_t`, the number of rows;
 - `encoded`: a reference to `TForwardInputOutputIt1`, the begin iterator of encoded elements. It must have at least `count` elements from the value passed into the call. When the call returns, the iterator is advanced by `count`.
 - `notNoisy`: a reference to `TInputIt2`, the begin iterator of a range of boolean values. It must have at least `count` elements from the value passed into the call. When the call returns, the iterator is advanced by `count`.
 - `decoded`: a `TRandomAccessInputIt3`, the begin iterator of decoded (unencoded) elements. It must have at least `K` elements from the value passed into the call, where `K` is implicit in the `entries` array.
@@ -53,9 +53,9 @@ Template arguments:
 
 Formal parameters:
 
-- `K`: an `unsigned`, the number of decoded elements.
-- `D`: an `unsigned`, the sparsity parameter of the sparse matrix.
-- `U`: an `unsigned`, the number of rows in the encoded vector that can be used to perform Gaussian elimination, i.e., the “top part” of the vector as described in the paper.
+- `K`: a `size_t`, the number of decoded elements.
+- `D`: a `size_t`, the sparsity parameter of the sparse matrix.
+- `U`: a `size_t`, the number of rows in the encoded vector that can be used to perform Gaussian elimination, i.e., the “top part” of the vector as described in the paper.
 - `encoded`: a `TInputIt1` that has at least `U` elements from the value on.
 - `notNoisy`: a `TInputIt2` that has at least `U` boolean elements from the value on.
 - `decoded`: a `TOutputIt3` that allows writing at least `K` elements from the value on.
@@ -81,10 +81,10 @@ Member types:
 
 Member variables:
 
-- `K`: an `unsigned`, the length of the random vector.
-- `D`: an `unsigned`, the sparsity parameter of the sparse matrix.
-- `U`: an `unsigned`, the length of the top part.
-- `V`: an `unsigned`, the length of the bottom part.
+- `K`: a `size_t`, the length of the random vector.
+- `D`: a `size_t`, the sparsity parameter of the sparse matrix.
+- `U`: a `size_t`, the length of the top part.
+- `V`: a `size_t`, the length of the bottom part.
 - `Entries`: an `EntryVec`, each `D` elements form a row, and there shall be `D` times `(U + V)` elements.
 
 Member function templates:

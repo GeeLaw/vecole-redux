@@ -36,7 +36,7 @@ struct
 {
     void operator () (Zp const zp, FILE *fp) const
     {
-        fprintf(fp, "%u", (unsigned)zp);
+        fprintf(fp, "%ju\n", (uintmax_t)(uint32_t)zp);
     }
 } const SaveZp;
 

@@ -14,7 +14,7 @@ namespace SparseLinearCode
     template <typename TRing>
     struct SparseMatrixEntry
     {
-        unsigned Column;
+        size_t Column;
         TRing Value;
     };
 
@@ -27,8 +27,8 @@ namespace SparseLinearCode
     >
     void SparseEncode
     (
-        unsigned D,
-        unsigned count,
+        size_t D,
+        size_t count,
         /* encoded = TRing[count] */
         TForwardInputOutputIt1 &encoded,
         /* notNoisy = bool[count] */
@@ -39,7 +39,7 @@ namespace SparseLinearCode
     {
         for (; count--; ++encoded, ++notNoisy)
             if (*notNoisy)
-                for (unsigned i = 0u; i != D; ++i, ++entries)
+                for (size_t i = 0; i != D; ++i, ++entries)
                     *encoded += entries->Value * decoded[entries->Column];
             else
                 std::advance(entries, D);
@@ -65,9 +65,9 @@ namespace SparseLinearCode
     >
     bool SparseDecodeDestructive
     (
-        unsigned K,
-        unsigned D,
-        unsigned U,
+        size_t K,
+        size_t D,
+        size_t U,
         /* encoded = TRing[U] */
         TInputIt1 encoded,
         /* notNoisy = bool[U] */
@@ -80,12 +80,12 @@ namespace SparseLinearCode
         TInverseFunctor inverse = DefaultInverseFunctor
     )
     {
-        unsigned kPlus1 = K + 1u;
-        unsigned validRows = 0u;
+        size_t kPlus1 = K + 1;
+        size_t validRows = 0;
         for (; U--; ++encoded, ++notNoisy)
             if (*notNoisy)
             {
-                for (unsigned i = 0u; i != D; ++i, ++entries)
+                for (size_t i = 0; i != D; ++i, ++entries)
                     matrix[validRows * kPlus1 + entries->Column] += entries->Value;
                 matrix[validRows * kPlus1 + K] += *encoded;
                 ++validRows;
@@ -95,18 +95,18 @@ namespace SparseLinearCode
         if (validRows < K)
             return false;
         /* elimination */
-        for (unsigned i = 0u; ; ++i)
+        for (size_t i = 0; ; ++i)
         {
             if (!(bool)matrix[i * kPlus1 + i])
             {
                 bool success = false;
-                for (unsigned j = i + 1u; j != validRows; ++j)
+                for (size_t j = i + 1; j != validRows; ++j)
                     if ((bool)matrix[j * kPlus1 + i])
                     {
                         std::swap_ranges
                         (
                             matrix + i * kPlus1,
-                            matrix + (i + 1u) * kPlus1,
+                            matrix + (i + 1) * kPlus1,
                             matrix + j * kPlus1
                         );
                         success = true;
@@ -116,29 +116,29 @@ namespace SparseLinearCode
                     return false;
             }
             auto invLeading = inverse(matrix[i * kPlus1 + i]);
-            for (unsigned k = i; k <= K; ++k)
+            for (size_t k = i; k <= K; ++k)
                 matrix[i * kPlus1 + k] *= invLeading;
-            if (i + 1u == K)
+            if (i + 1 == K)
                 break;
-            for (unsigned j = i + 1u; j != validRows; ++j)
+            for (size_t j = i + 1; j != validRows; ++j)
                 if ((bool)matrix[j * kPlus1 + i])
                 {
                     auto leading = matrix[j * kPlus1 + i];
-                    for (unsigned k = i + 1u; k <= K; ++k)
+                    for (size_t k = i + 1; k <= K; ++k)
                         matrix[j * kPlus1 + k] -= leading * matrix[i * kPlus1 + k];
                     matrix[j * kPlus1 + i] = 0;
                 }
         }
         /* substitution */
-        for (unsigned i = K - 1u; i != 0u; --i)
-            for (unsigned j = i - 1u; j != 0u - 1u; --j)
+        for (size_t i = K - 1; i; --i)
+            for (size_t j = i - 1; j != (size_t)0 - (size_t)1; --j)
                 if ((bool)matrix[j * kPlus1 + i])
                     matrix[j * kPlus1 + K] -=
                         std::move(matrix[j * kPlus1 + i])
                         * matrix[i * kPlus1 + K];
         /* move the results to decoded */
         matrix += K;
-        for (unsigned i = 0u; i != K; ++i, ++decoded, matrix += K + 1u)
+        for (size_t i = 0; i != K; ++i, ++decoded, matrix += K + 1)
             *decoded = std::move(*matrix);
         return true;
     }
@@ -153,10 +153,10 @@ namespace SparseLinearCode
         typedef SparseMatrixEntry<TRing> Entry;
         typedef std::vector<Entry, TAllocEntry> EntryVec;
 
-        unsigned K;
-        unsigned D;
-        unsigned U;
-        unsigned V;
+        size_t K;
+        size_t D;
+        size_t U;
+        size_t V;
         EntryVec Entries;
 
         template
@@ -166,16 +166,16 @@ namespace SparseLinearCode
         >
         void Resample(TRandomGenerator &next, TRingDistribution &valDist)
         {
-            std::uniform_int_distribution<unsigned> columnDist(0, K - 1u);
+            std::uniform_int_distribution<size_t> columnDist(0, K - 1);
             Entries.clear();
             Entries.reserve((U + V) * D);
-            std::set<unsigned> dedup;
-            for (unsigned i = U + V; i != 0u; --i)
+            std::set<size_t> dedup;
+            for (size_t i = U + V; i; --i)
             {
                 dedup.clear();
-                for (unsigned j = D; j != 0u; --j)
+                for (size_t j = D; j; --j)
                 {
-                    unsigned col;
+                    size_t col;
                     do
                         col = columnDist(next);
                     while (!dedup.insert(col).second);
@@ -286,7 +286,7 @@ namespace SparseLinearCode
         ) const
         {
             std::vector<TRing> matrix;
-            matrix.resize(U * (K + 1u));
+            matrix.resize(U * (K + 1));
             return SparseDecodeDestructive
             (
                 K, D, U,
@@ -300,29 +300,28 @@ namespace SparseLinearCode
         void SaveTo(FILE *fp, TSaveRing saveRing) const
         {
             auto i = Entries.data();
-            auto j = i + Entries.size();
-            fprintf(fp, "%u %u %u %u %u\n", K, D, U, V, (unsigned)(j - i));
-            for (; i != j; ++i)
+            auto sz = Entries.size();
+            fprintf(fp, "%zu %zu %zu %zu %zu\n", K, D, U, V, sz);
+            for (auto j = i + sz; i != j; ++i)
             {
-                fprintf(fp, "%u ", i->Column);
+                fprintf(fp, "%zu\n", i->Column);
                 saveRing(i->Value, fp);
-                fputc('\n', fp);
             }
         }
 
         template <typename TLoadRing>
         bool LoadFrom(FILE *fp, TLoadRing loadRing)
         {
-            unsigned sz;
-            if (fscanf(fp, "%u%u%u%u%u", &K, &D, &U, &V, &sz) != 5)
+            size_t sz;
+            if (fscanf(fp, "%zu%zu%zu%zu%zu", &K, &D, &U, &V, &sz) != 5)
                 return false;
             Entries.clear();
             Entries.reserve(sz);
-            unsigned uInt;
+            size_t uInt;
             TRing ringElem;
             while (sz--)
             {
-                if (fscanf(fp, "%u", &uInt) != 1)
+                if (fscanf(fp, "%zu", &uInt) != 1)
                     return false;
                 if (!loadRing(ringElem, fp))
                     return false;

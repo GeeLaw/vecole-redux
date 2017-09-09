@@ -8,11 +8,11 @@ namespace Cryptography
 {
     namespace AgentFlag
     {
-        typedef unsigned Type;
-        constexpr Type None = 0u;
-        constexpr Type Alice = 1u << 0;
-        constexpr Type Bob = 1u << 1;
-        constexpr Type Random = 1u << 17;
+        typedef size_t Type;
+        constexpr Type None = (Type)0;
+        constexpr Type Alice = (Type)1 << 0;
+        constexpr Type Bob = (Type)1 << 1;
+        constexpr Type Random = (Type)1 << 17;
     }
 
     namespace ExtendedEuclideanImpl_
@@ -41,13 +41,13 @@ namespace Cryptography
         bool EEInv(TUInt x, TUInt const &oldY, TUInt &result, TDivider divider)
         {
             TUInt y = oldY;
-            TUInt k, tmp, a11 = 1u, a12 = 0u;
+            TUInt k, tmp, a11 = 1, a12 = 0;
             while (true)
             {
                 /* shouldNotInvertBegin: */
                 if (!x)
                     return false;
-                if (x == 1u)
+                if (x == 1)
                 {
                     result = std::move(a11);
                     return true;
@@ -63,7 +63,7 @@ namespace Cryptography
                 /* shouldInvertBegin: */
                 if (!x)
                     return false;
-                if (x == 1u)
+                if (x == 1)
                 {
                     result = oldY - std::move(a11);
                     return true;
@@ -161,7 +161,7 @@ namespace Cryptography
         }
         Z const Inverse() const
         {
-            TBaseType inv = 0u;
+            TBaseType inv = 0;
             ExtendedEuclideanImpl_::EEInv(raw_value, p, inv);
             return inv;
         }
