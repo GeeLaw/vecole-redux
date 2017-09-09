@@ -83,9 +83,9 @@ int main()
             );
     }
     keys.OfflineEncoding = std::move(kp.OfflineEncoding);
-    /* Degarble the circuit. */
+    /* Ungarble the circuit. */
     surrogateConfig.ResetPreserveConfiguration();
-    Garbled2::Degarble(circuit, surrogateConfig, keys, StdoutIterator());
+    Garbled2::Ungarble(circuit, surrogateConfig, keys, StdoutIterator());
     return 0;
 }
 

@@ -1,8 +1,8 @@
 template <TPC_TYPENAMES_, CONF_TYPENAMES_, KEYS_TYPENAMES_>
-struct Degarble
+struct Ungarble
     : GateVisitorCRTP
     <
-        Degarble
+        Ungarble
         <
             TPC_TYPENAME_ARGS_,
             CONF_TYPENAME_ARGS_,
@@ -20,7 +20,7 @@ struct Degarble
     KeysType &keys;
 
     template <typename TOutputIt>
-    Degarble(
+    Ungarble(
         TwoPartyCircuitType &tpc,
         ConfigurationType &config,
         KeysType &kt,
@@ -37,7 +37,7 @@ struct Degarble
 private:
     friend class GateVisitorCRTP
         <
-            Degarble
+            Ungarble
             <
                 TPC_TYPENAME_ARGS_,
                 CONF_TYPENAME_ARGS_,

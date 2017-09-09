@@ -55,7 +55,7 @@ namespace Garbled2
 
 #include"./garbled_circuits2_impl/configure.hpp"
 #include"./garbled_circuits2_impl/garble.hpp"
-#include"./garbled_circuits2_impl/degarble.hpp"
+#include"./garbled_circuits2_impl/ungarble.hpp"
 
     }
 
@@ -106,7 +106,7 @@ namespace Garbled2
         KEYS_TYPENAMES_,
         typename TOutputIt
     >
-    void Degarble
+    void Ungarble
     (
         TwoPartyCircuit<TPC_TYPENAME_ARGS_> &circuit,
         Configuration<CONF_TYPENAME_ARGS_> &config,
@@ -114,7 +114,7 @@ namespace Garbled2
         TOutputIt outputIterator
     )
     {
-        _CompilerImpl::Degarble
+        _CompilerImpl::Ungarble
         <
             TPC_TYPENAME_ARGS_,
             CONF_TYPENAME_ARGS_,
