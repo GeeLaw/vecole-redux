@@ -23,7 +23,7 @@ typedef Cryptography::Z<4294967291u> Zp;
 typedef std::mt19937 RNG;
 
 unsigned K, U, V, W;
-std::uniform_int_distribution<uint32_t> UZp(0u, 4294967295u);
+std::uniform_int_distribution<uint32_t> UZp(0u, 4294967290u);
 
 Encoding::LubyTransform::LTCode<> InnerCode;
 Encoding::SparseLinearCode::FastSparseLinearCode<Zp> OuterCode;

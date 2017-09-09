@@ -22,7 +22,7 @@ unsigned v, vErased;
 bool *boolArray;
 Zp *plain, *encoded, *decoded;
 RNG rng((unsigned)time(nullptr));
-std::uniform_int_distribution<uint32_t> UZp(0u, 4294967295u);
+std::uniform_int_distribution<uint32_t> UZp(0u, 4294967290u);
 
 void PrintUsage();
 double TestLTCode(LTCode<> const &code, unsigned const count);
