@@ -36,11 +36,12 @@ Members:
 - Default constructor: lets the object own no socket.
 - Constructor `(SOCKET target)`: lets the object own `target`. If `target` is `INVALID_SOCKET`, the object does not own a socket.
 - Move constructor: takes the ownership from the other object.
-- Move assignment: takes the ownership from the other object.
+- Move assignment: disposes the current object and takes the ownership from the other object.
 - Destructor: closes the socket it owns (if any).
 - `bool IsValid() const` function: returns whether the object owns a socket or not.
 - `SOCKET RawValue() const` function: returns the `SOCKET` the object owns. If the object owns no socket, `INVALID_SOCKET` is returned. Calling this function does **not** invalidate the ownership.
-- `SOCKET Release()` function: lets the object own no socket and returns the `SOCKET` the object previously owned.
+- `SOCKET RevokeOwnership()` function: lets the object own no socket and returns the `SOCKET` the object previously owned.
+- `void Dispose()` function: disposes the `SOCKET` the object owns (if any).
 
 ## `ServerConnectToClient` function
 

@@ -156,14 +156,14 @@ namespace SocketWrappers
         {
             if (this == &other)
                 return *this;
+            Dispose();
             socket_ = other.socket_;
             other.socket_ = INVALID_SOCKET;
             return *this;
         }
         ~SocketUnique()
         {
-            if (socket_ != INVALID_SOCKET)
-                closesocket(socket_);
+            Dispose();
         }
         bool IsValid() const
         {
@@ -173,11 +173,19 @@ namespace SocketWrappers
         {
             return socket_;
         }
-        SOCKET Release()
+        SOCKET RevokeOwnership()
         {
             SOCKET result = socket_;
             socket_ = INVALID_SOCKET;
             return result;
+        }
+        void Dispose()
+        {
+            if (socket_ != INVALID_SOCKET)
+            {
+                closesocket(socket_);
+                socket_ = INVALID_SOCKET;
+            }
         }
     private:
         SOCKET socket_;
@@ -226,7 +234,7 @@ namespace SocketWrappers
             fprintf(stderr, "setsockopt failed with %d.\n", WSAGetLastError());
             return INVALID_SOCKET;
         }
-        return sockUnique.Release();
+        return sockUnique.RevokeOwnership();
     }
 
     SOCKET ClientConnectToServer(char const *server, PortType port)
@@ -258,7 +266,7 @@ namespace SocketWrappers
             fprintf(stderr, "setsockopt failed with %d.\n", WSAGetLastError());
             return INVALID_SOCKET;
         }
-        return sockUnique.Release();
+        return sockUnique.RevokeOwnership();
     }
 
 }
