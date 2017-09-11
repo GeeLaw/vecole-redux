@@ -76,6 +76,7 @@ namespace Garbled2
     template
     <
         TPC_TYPENAMES_,
+        CONF_TYPENAMES_,
         KEYPAIRS_TYPENAMES_,
         typename TRandomGenerator,
         typename TRingDistribution
@@ -83,6 +84,7 @@ namespace Garbled2
     void Garble
     (
         TwoPartyCircuit<TPC_TYPENAME_ARGS_> &circuit,
+        Configuration<CONF_TYPENAME_ARGS_> &config,
         KeyPairs<KEYPAIRS_TYPENAME_ARGS_> &keypairs,
         TRandomGenerator &next,
         TRingDistribution &ringDist,
@@ -93,10 +95,11 @@ namespace Garbled2
         _CompilerImpl::Garble
         <
             TPC_TYPENAME_ARGS_,
+            CONF_TYPENAME_ARGS_,
             KEYPAIRS_TYPENAME_ARGS_,
             TRandomGenerator,
             TRingDistribution
-        > compile_(circuit, keypairs, next, ringDist, one, zero);
+        > compile_(circuit, config, keypairs, next, ringDist, one, zero);
     }
 
     template

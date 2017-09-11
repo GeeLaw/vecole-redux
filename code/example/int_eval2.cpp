@@ -52,10 +52,9 @@ int main()
     keys.ApplyConfiguration(config);
     surrogateConfig = config;
     /* Garble the circuit. */
-    kp.ResetPreserveConfiguration();
-    Garbled2::Garble(circuit, kp, rng, ringDist);
+    surrogateConfig.ResetPreserveConfiguration();
+    Garbled2::Garble(circuit, surrogateConfig, kp, rng, ringDist);
     /* Collect the input. */
-    keys.ResetPreserveConfiguration();
     for (size_t i = 0,
         alice = circuit.AliceInputEnd - circuit.AliceInputBegin;
         i != alice; ++i)
@@ -65,9 +64,7 @@ int main()
         scanf("%d", &v);
         for (size_t j = 0, enc = config.AliceEncoding[i];
             j != enc; ++j)
-            keys.AliceEncoding[i].push_back(
-                kp.AliceCoefficient[i][j] * v + kp.AliceIntercept[i][j]
-            );
+            keys.AliceEncoding[i][j] = kp.AliceCoefficient[i][j] * v + kp.AliceIntercept[i][j];
     }
     for (size_t i = 0,
         bob = circuit.BobInputEnd - circuit.BobInputBegin;
@@ -78,9 +75,7 @@ int main()
         scanf("%d", &v);
         for (size_t j = 0, enc = config.BobEncoding[i];
             j != enc; ++j)
-            keys.BobEncoding[i].push_back(
-                kp.BobCoefficient[i][j] * v + kp.BobIntercept[i][j]
-            );
+            keys.BobEncoding[i][j] = kp.BobCoefficient[i][j] * v + kp.BobIntercept[i][j];
     }
     keys.OfflineEncoding = std::move(kp.OfflineEncoding);
     /* Ungarble the circuit. */

@@ -34,16 +34,16 @@ struct KeyPairs
     {
         size_t sz;
         OfflineEncoding.clear();
-        OfflineEncoding.reserve(config.OfflineEncoding);
+        OfflineEncoding.resize(config.OfflineEncoding);
         sz = config.AliceEncoding.size();
         AliceCoefficient.resize(sz);
         AliceIntercept.resize(sz);
         for (size_t i = 0; i != sz; ++i)
         {
             AliceCoefficient[i].clear();
-            AliceCoefficient[i].reserve(config.AliceEncoding[i]);
+            AliceCoefficient[i].resize(config.AliceEncoding[i]);
             AliceIntercept[i].clear();
-            AliceIntercept[i].reserve(config.AliceEncoding[i]);
+            AliceIntercept[i].resize(config.AliceEncoding[i]);
         }
         sz = config.BobEncoding.size();
         BobCoefficient.resize(sz);
@@ -51,23 +51,10 @@ struct KeyPairs
         for (size_t i = 0; i != sz; ++i)
         {
             BobCoefficient[i].clear();
-            BobCoefficient[i].reserve(config.BobEncoding[i]);
+            BobCoefficient[i].resize(config.BobEncoding[i]);
             BobIntercept[i].clear();
-            BobIntercept[i].reserve(config.BobEncoding[i]);
+            BobIntercept[i].resize(config.BobEncoding[i]);
         }
-    }
-
-    void ResetPreserveConfiguration()
-    {
-        OfflineEncoding.clear();
-        for (auto &a : AliceCoefficient)
-            a.clear();
-        for (auto &a : AliceIntercept)
-            a.clear();
-        for (auto &b : BobCoefficient)
-            b.clear();
-        for (auto &b : BobIntercept)
-            b.clear();
     }
 };
 
@@ -90,27 +77,18 @@ struct Keys
     {
         size_t sz;
         OfflineEncoding.clear();
-        OfflineEncoding.reserve(config.OfflineEncoding);
+        OfflineEncoding.resize(config.OfflineEncoding);
         AliceEncoding.resize(sz = config.AliceEncoding.size());
         for (size_t i = 0; i != sz; ++i)
         {
             AliceEncoding[i].clear();
-            AliceEncoding[i].reserve(config.AliceEncoding[i]);
+            AliceEncoding[i].resize(config.AliceEncoding[i]);
         }
         BobEncoding.resize(sz = config.BobEncoding.size());
         for (size_t i = 0; i != sz; ++i)
         {
             BobEncoding[i].clear();
-            BobEncoding[i].reserve(config.BobEncoding[i]);
+            BobEncoding[i].resize(config.BobEncoding[i]);
         }
-    }
-
-    void ResetPreserveConfiguration()
-    {
-        OfflineEncoding.clear();
-        for (auto &a : AliceEncoding)
-            a.clear();
-        for (auto &b : BobEncoding)
-            b.clear();
     }
 };

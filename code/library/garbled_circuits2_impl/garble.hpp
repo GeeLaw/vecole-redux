@@ -1,6 +1,6 @@
 template
 <
-    TPC_TYPENAMES_, KEYPAIRS_TYPENAMES_,
+    TPC_TYPENAMES_, CONF_TYPENAMES_, KEYPAIRS_TYPENAMES_,
     typename TRandomGenerator, typename TRingDist
 >
 struct Garble
@@ -8,16 +8,20 @@ struct Garble
     <
         Garble
         <
-            TPC_TYPENAME_ARGS_, KEYPAIRS_TYPENAME_ARGS_,
+            TPC_TYPENAME_ARGS_,
+            CONF_TYPENAME_ARGS_,
+            KEYPAIRS_TYPENAME_ARGS_,
             TRandomGenerator, TRingDist
         >,
         void(TKPRing &&, TKPRing &&)
     >
 {
     typedef TwoPartyCircuit<TPC_TYPENAME_ARGS_> TwoPartyCircuitType;
+    typedef Configuration<CONF_TYPENAME_ARGS_> ConfigurationType;
     typedef KeyPairs<KEYPAIRS_TYPENAME_ARGS_> KeyPairsType;
 
     Gate *circuit;
+    ConfigurationType &config;
     KeyPairsType &keypairs;
     TRandomGenerator &next;
     TRingDist &ringDist;
@@ -26,12 +30,14 @@ struct Garble
 
     Garble(
         TwoPartyCircuitType &tpc,
+        ConfigurationType &conf,
         KeyPairsType &kp,
         TRandomGenerator &rng,
         TRingDist &rd,
         TKPRing const &one = 1,
         TKPRing const &zero = 0
-    ) : circuit(tpc.Gates.data()), keypairs(kp),
+    ) : circuit(tpc.Gates.data()),
+        config(conf), keypairs(kp),
         next(rng), ringDist(rd),
         oneGate(one), zeroGate(zero)
     {
@@ -48,7 +54,7 @@ private:
         <
             Garble
             <
-                TPC_TYPENAME_ARGS_, KEYPAIRS_TYPENAME_ARGS_,
+                TPC_TYPENAME_ARGS_, CONF_TYPENAME_ARGS_, KEYPAIRS_TYPENAME_ARGS_,
                 TRandomGenerator, TRingDist
             >,
             void(TKPRing &&, TKPRing &&)
@@ -61,17 +67,17 @@ private:
 
     void VisitConstZero(Gate *, TKPRing &&k, TKPRing &&b)
     {
-        keypairs.OfflineEncoding.push_back(std::move(b));
+        keypairs.OfflineEncoding[config.OfflineEncoding++] = std::move(b);
     }
 
     void VisitConstOne(Gate *, TKPRing &&k, TKPRing &&b)
     {
-        keypairs.OfflineEncoding.push_back(k + b);
+        keypairs.OfflineEncoding[config.OfflineEncoding++] = k + b;
     }
 
     void VisitConstMinusOne(Gate *, TKPRing &&k, TKPRing &&b)
     {
-        keypairs.OfflineEncoding.push_back(b - k);
+        keypairs.OfflineEncoding[config.OfflineEncoding++] = b - k;
     }
 
     void VisitInputGate(Gate *that, TKPRing &&k, TKPRing &&b)
@@ -81,14 +87,14 @@ private:
         auto const owner = g.Agent;
         if (owner == AgentFlag::Alice)
         {
-            keypairs.AliceCoefficient[index].push_back(std::move(k));
-            keypairs.AliceIntercept[index].push_back(std::move(b));
+            keypairs.AliceCoefficient[index][config.AliceEncoding[index]] = std::move(k);
+            keypairs.AliceIntercept[index][config.AliceEncoding[index]++] = std::move(b);
             return;
         }
         if (owner == AgentFlag::Bob)
         {
-            keypairs.BobCoefficient[index].push_back(std::move(k));
-            keypairs.BobIntercept[index].push_back(std::move(b));
+            keypairs.BobCoefficient[index][config.BobEncoding[index]] = std::move(k);
+            keypairs.BobIntercept[index][config.BobEncoding[index]++] = std::move(b);
             return;
         }
         exit(-99);

@@ -17,7 +17,7 @@ Represents the configuration of a garbled circuit. `TAllocSizeT` is an allocator
 
 The configuration of a garbled circuit of a `TwoPartyCircuit` is the number of offline keys (those that do not depend on the input of Alice or Bob), the number of key pairs (the coefficients and the intercepts, or the vector `a_i(r)` and `b_i(r)`) of each input of Alice, and that of Bob.
 
-`ResetPreserveConfiguration` resets the counters but keeps the dimensional sizes of `AliceEncoding` and `BobEncoding`. It is required to call this method before passing a `Configuration` into `Ungarble`, which uses the object as the counter.
+`ResetPreserveConfiguration` resets the counters but keeps the dimensional sizes of `AliceEncoding` and `BobEncoding`. It is required to call this method before passing a `Configuration` into `Garble` or `Ungarble`, which uses the object as the counter.
 
 ## `KeyPairs<TRing, TAllocRing, TAllocRingVec>` structure template
 
@@ -25,10 +25,7 @@ Template argument `TRing` is the ring type. `TAllocRing` should be an allocator 
 
 Represents one possible result of garbled circuits. The concrete values of the input are not yet considered, therefore the “keys” for the input of Alice and Bob are really “key pairs”.
 
-The two member methods are useful for optimisation and usage.
-
-- `ApplyConfiguration` clears the structure and reserves at least the final size that a compilation wiil require. If the circuit is quite large, it is useful to first compute the size and reserve. However, even if the circuit is small, `KeyPairs` and `Keys` objects are required to be `ApplyConfiguration`ed before being passed into the calls so that they have the correct size in the higher dimension.
-- `ResetPreserveConfiguration` clears the structure, keeping the reserved size effective. For successive garbling of the same circuit, it is idiomatic to use `ResetPreserveConfiguration` before each call to `Garble` instead of using a fresh new object.
+`ApplyConfiguration` reshapes the structure into the final size that a compilation wiil require. `KeyPairs` and `Keys` objects are required to be `ApplyConfiguration`ed before being passed into the calls so that they have the correct size in the higher dimension.
 
 ## `Keys<TRing, TAllocRing, TAllocRingVec>` structure template
 
@@ -36,7 +33,7 @@ The template arguments have the same meaning as those of `KeyPairs`’.
 
 Represents one possible result of garbled circuit with the input fixed. Usually computed from a `KeyPairs` with the inputs and part of them might be obiliviously evaluated per application of vector-OLE on NC0 functionalities.
 
-The two memeber methods are useful for optimisation. See that part of `KeyPairs`.
+For `ApplyConfiguration`, see that part of `KeyPairs`.
 
 ## `void Configure(TPC &circuit, CONF &config)` function template
 
@@ -46,13 +43,13 @@ Finds out the configuration of the garbled form of `circuit` and stores it in `c
 
 The parameter `circuit` is ***not*** modified during the execution. The parameter `config` need not be clean when passed into the call because the call will clean it.
 
-## `void Garble(TPC &circuit, KP &keyparis, RNG &next, DIST &dist, Ring const &zero = 0, Ring const &one = 1)` function template
+## `void Garble(TPC &circuit, CONF &config, KP &keyparis, RNG &next, DIST &dist, Ring const &zero = 0, Ring const &one = 1)` function template
 
-Compiles `circuit` into its garbled formed stored in `keypairs` with random bit source `next` and distribution of ring elements `dist`. The ring zero and identity are provided as `zero` and `one` arguments.
+Compiles `circuit` into its garbled formed stored in `keypairs` with random bit source `next` and distribution of ring elements `dist` using `config` as the counters. The ring zero and identity are provided as `zero` and `one` arguments.
 
-`TPC` is an instantiation of `TwoPartyCircuit`. `KP` is an instantiation of `KeyPairs`. `RNG` should be a random generator (as defined in standard C++). `DIST` should be a distribution (as defined in standard C++) over the ring elements. `Ring` is the ring type implied by `KP`.
+`TPC` is an instantiation of `TwoPartyCircuit`. `CONF` is an instatiation of `Configuration`. `KP` is an instantiation of `KeyPairs`. `RNG` should be a random generator (as defined in standard C++). `DIST` should be a distribution (as defined in standard C++) over the ring elements. `Ring` is the ring type implied by `KP`.
 
-The input `circuit` is ***not*** modified during the execution. It is assumed that `keypairs` is reset before being passed into the call (e.g., using `ResetPreserveConfiguration`). Internal states of `next` and `dist` might well advance.
+The input `circuit` is ***not*** modified during the execution. Internal states of `next` and `dist` might well advance.
 
 ## `void Ungarble(TPC &circuit, CONF &config, K &keys, TOutputIt outputIt)` function template
 
