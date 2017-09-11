@@ -183,8 +183,6 @@ double TestLTCode(LTCode<> const &code, unsigned const count)
         for (unsigned j = 0u; j != v; ++j)
             encoded[j] = 0;
         code.Encode(encoded, (bool const *)boolArray + w, (Zp const *)plain);
-        for (unsigned j = 0u; j != w; ++j)
-            decoded[j] = 0;
         surrogate = code;
         if (!surrogate.DecodeDestructive
         (

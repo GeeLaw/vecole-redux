@@ -158,7 +158,7 @@ namespace LubyTransform
         TBidirectionalInputOutputIt2 binsEnd,
         /* size_t[], destructive */
         TRandomAccessInputOutputIt3 const &storage,
-        /* F[decodedSize] = 0 */
+        /* F[decodedSize] */
         TRandomAccessInputOutputIt4 const &decoded,
         /* [notNoisyBegin, notNoisyEnd) = bool[encodedSize] */
         TBidirectionalInputIt5 notNoisyBegin,

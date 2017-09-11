@@ -366,7 +366,6 @@ int PlayBob()
     for (auto &z : randomVector)
         z = -z;
     OuterCode.EncodeLowerPart(encodedVector + U, notNoisyVector + U, randomVector);
-    memset(messageVector, 0, sizeof messageVector);
     if (!InnerCode.DecodeDestructive(
         solvedVector, solvedVector + W,
         messageVector,
