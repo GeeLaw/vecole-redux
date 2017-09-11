@@ -143,29 +143,29 @@ namespace Cryptography
         {
             return lhs = lhs * rhs;
         }
-        friend constexpr Z const operator + (Z const a, Z const b)
+        friend constexpr Z operator + (Z const a, Z const b)
         {
             return (TPromotedType)a.raw_value + b.raw_value;
         }
-        friend constexpr Z const operator - (Z const a)
+        friend constexpr Z operator - (Z const a)
         {
             return p - a.raw_value;
         }
-        friend constexpr Z const operator - (Z const a, Z const b)
+        friend constexpr Z operator - (Z const a, Z const b)
         {
             return (TPromotedType)p - b.raw_value + a.raw_value;
         }
-        friend constexpr Z const operator * (Z const a, Z const b)
+        friend constexpr Z operator * (Z const a, Z const b)
         {
             return (TPromotedType)a.raw_value * b.raw_value;
         }
-        Z const Inverse() const
+        Z Inverse() const
         {
             TBaseType inv = 0;
             ExtendedEuclideanImpl_::EEInv(raw_value, p, inv);
             return inv;
         }
-        friend Z const operator / (Z const a, Z const b)
+        friend Z operator / (Z const a, Z const b)
         {
             return a * b.Inverse();
         }
