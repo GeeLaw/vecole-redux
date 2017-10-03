@@ -86,9 +86,9 @@ namespace ArithmeticCircuits
             SubtractionGateData AsSubtractionGate;
             MultiplicationGateData AsMultiplicationGate;
         };
-        constexpr Gate() = default;
-        constexpr Gate(Gate const &) = default;
-        constexpr Gate(Gate &&) = default;
+        Gate() = default;
+        Gate(Gate const &) = default;
+        Gate(Gate &&) = default;
         Gate &operator = (Gate const &) = default;
         Gate &operator = (Gate &&) = default;
         ~Gate() = default;
@@ -246,7 +246,7 @@ namespace ArithmeticCircuits
             {
                 auto g = LoadFromImpl(fp);
                 if (g.Id == InvalidGateHandle
-                    || g.Kind == Invalid)
+                    || g.Kind == GateKind::Invalid)
                     return false;
                 *begin = g;
             }
