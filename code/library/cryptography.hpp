@@ -2,6 +2,7 @@
 #define CRYPTOGRAPHY_HPP_
 
 #include<utility>
+#include<cstddef>
 #include<cstdint>
 
 namespace Cryptography

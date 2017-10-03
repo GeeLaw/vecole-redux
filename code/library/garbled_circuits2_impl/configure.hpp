@@ -76,21 +76,21 @@ private:
     void VisitAdditionGate(Gate *that)
     {
         auto const &g = that->AsAdditionGate;
-        VisitDispatcher(circuit + g.Augend);
-        VisitDispatcher(circuit + g.Addend);
+        this->VisitDispatcher(circuit + g.Augend);
+        this->VisitDispatcher(circuit + g.Addend);
     }
 
     void VisitNegationGate(Gate *that)
     {
         auto const &g = that->AsNegationGate;
-        VisitDispatcher(circuit + g.Target);
+        this->VisitDispatcher(circuit + g.Target);
     }
 
     void VisitSubtractionGate(Gate *that)
     {
         auto const &g = that->AsSubtractionGate;
-        VisitDispatcher(circuit + g.Minuend);
-        VisitDispatcher(circuit + g.Subtrahend);
+        this->VisitDispatcher(circuit + g.Minuend);
+        this->VisitDispatcher(circuit + g.Subtrahend);
     }
 
     void VisitMultiplicationGate(Gate *that)
@@ -98,9 +98,9 @@ private:
         auto const &g = that->AsMultiplicationGate;
         auto const g1 = circuit + g.Multiplier;
         auto const g2 = circuit + g.Multiplicand;
-        VisitDispatcher(g1);
-        VisitDispatcher(g2);
-        VisitDispatcher(g1);
-        VisitDispatcher(g2);
+        this->VisitDispatcher(g1);
+        this->VisitDispatcher(g2);
+        this->VisitDispatcher(g1);
+        this->VisitDispatcher(g2);
     }
 };

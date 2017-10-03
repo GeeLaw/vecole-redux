@@ -2,6 +2,8 @@
 
 See [Secure Arithmetic Computation with Constant Computational Overhead](http://eprint.iacr.org/2017/617/20170627:191617). This project implements the reduction that constructs OLE from vector-OLE.
 
+To get the protocol running, see [“Usage” section of pe2.md](docs/pe2.md#usage).
+
 ## License: The MIT License (MIT)
 
 Copyright © 2017 by Luo Ji (a.k.a. Gee Law)
@@ -11,3 +13,5 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Luo Ji is with Institute for Interdisciplinary Information Sciences of Tsinghua University. This is a mini research project supervised by Ivan Damgård during summer, 2017.

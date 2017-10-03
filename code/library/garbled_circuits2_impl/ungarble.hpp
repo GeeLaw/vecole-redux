@@ -29,7 +29,7 @@ struct Ungarble
     {
         for (auto const ao : tpc.AliceOutput)
         {
-            *outputIt = VisitDispatcher(circuit + ao);
+            *outputIt = this->VisitDispatcher(circuit + ao);
             ++outputIt;
         }
     }
@@ -81,22 +81,22 @@ private:
     TKRing VisitAdditionGate(Gate *that)
     {
         auto const &g = that->AsAdditionGate;
-        auto &&g1 = VisitDispatcher(circuit + g.Augend);
-        auto &&g2 = VisitDispatcher(circuit + g.Addend);
+        auto &&g1 = this->VisitDispatcher(circuit + g.Augend);
+        auto &&g2 = this->VisitDispatcher(circuit + g.Addend);
         return std::move(g1) + std::move(g2);
     }
 
     TKRing VisitNegationGate(Gate *that)
     {
         auto const &g = that->AsNegationGate;
-        return VisitDispatcher(circuit + g.Target);
+        return this->VisitDispatcher(circuit + g.Target);
     }
 
     TKRing VisitSubtractionGate(Gate *that)
     {
         auto const &g = that->AsSubtractionGate;
-        auto &&g1 = VisitDispatcher(circuit + g.Minuend);
-        auto &&g2 = VisitDispatcher(circuit + g.Subtrahend);
+        auto &&g1 = this->VisitDispatcher(circuit + g.Minuend);
+        auto &&g2 = this->VisitDispatcher(circuit + g.Subtrahend);
         return std::move(g1) - std::move(g2);
     }
 
@@ -105,10 +105,10 @@ private:
         auto const &g = that->AsMultiplicationGate;
         auto const g1 = circuit + g.Multiplier;
         auto const g2 = circuit + g.Multiplicand;
-        auto &&x1 = VisitDispatcher(g1);
-        auto &&x2 = VisitDispatcher(g2);
-        auto &&x3 = VisitDispatcher(g1);
-        auto &&x4 = VisitDispatcher(g2);
+        auto &&x1 = this->VisitDispatcher(g1);
+        auto &&x2 = this->VisitDispatcher(g2);
+        auto &&x3 = this->VisitDispatcher(g1);
+        auto &&x4 = this->VisitDispatcher(g2);
         return std::move(x1) * std::move(x2) + (std::move(x3) + std::move(x4));
     }
 };

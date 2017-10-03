@@ -8,9 +8,11 @@
 #ifndef _WIN32
 
 #include<arpa/inet.h>
+#include<sys/types.h>
 #include<sys/socket.h>
 #include<netinet/tcp.h>
 #include<errno.h>
+#include<unistd.h>
 
 /* Poly-fill Windows-specific identifiers used in the code. */
 #define WSAStartup(ARG1, ARG2) (0)
@@ -18,6 +20,9 @@
 #define WSAGetLastError() (errno)
 #define closesocket(ARG) (close(ARG))
 #define WSADATA int
+typedef int SOCKET;
+constexpr SOCKET INVALID_SOCKET = (SOCKET)-1;
+constexpr int SOCKET_ERROR = -1;
 
 #else
 
@@ -217,7 +222,7 @@ namespace SocketWrappers
             fprintf(stderr, "listen failed with %d.\n", WSAGetLastError());
             return INVALID_SOCKET;
         }
-        int sailen = sizeof sai;
+        socklen_t sailen = sizeof sai;
         SOCKET sock = accept(serverSock, (sockaddr *)&sai, &sailen);
         if (sock == INVALID_SOCKET)
         {

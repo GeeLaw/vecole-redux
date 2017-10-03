@@ -45,7 +45,7 @@ struct Garble
         {
             TKPRing oneCopy = oneGate;
             TKPRing zeroCopy = zeroGate;
-            VisitDispatcher(circuit + ao, std::move(oneCopy), std::move(zeroCopy));
+            this->VisitDispatcher(circuit + ao, std::move(oneCopy), std::move(zeroCopy));
         }
     }
 
@@ -106,14 +106,14 @@ private:
         auto &&r = ringDist(next);
         b -= r;
         auto kCopy = k;
-        VisitDispatcher(circuit + g.Augend, std::move(k), std::move(r));
-        VisitDispatcher(circuit + g.Addend, std::move(kCopy), std::move(b));
+        this->VisitDispatcher(circuit + g.Augend, std::move(k), std::move(r));
+        this->VisitDispatcher(circuit + g.Addend, std::move(kCopy), std::move(b));
     }
 
     void VisitNegationGate(Gate *that, TKPRing &&k, TKPRing &&b)
     {
         auto const &g = that->AsNegationGate;
-        VisitDispatcher(circuit + g.Target, -k, std::move(b));
+        this->VisitDispatcher(circuit + g.Target, -k, std::move(b));
     }
 
     void VisitSubtractionGate(Gate *that, TKPRing &&k, TKPRing &&b)
@@ -121,8 +121,8 @@ private:
         auto const &g = that->AsSubtractionGate;
         auto &&r = ringDist(next);
         auto kCopy = k;
-        VisitDispatcher(circuit + g.Minuend, std::move(k), b + r);
-        VisitDispatcher(circuit + g.Subtrahend, std::move(kCopy), std::move(r));
+        this->VisitDispatcher(circuit + g.Minuend, std::move(k), b + r);
+        this->VisitDispatcher(circuit + g.Subtrahend, std::move(kCopy), std::move(r));
     }
 
     void VisitMultiplicationGate(Gate *that, TKPRing &&k, TKPRing &&b)
@@ -136,9 +136,9 @@ private:
         auto oneCopy = oneGate;
         auto const g1 = circuit + g.Multiplier;
         auto const g2 = circuit + g.Multiplicand;
-        VisitDispatcher(g1, std::move(k), -r1);
-        VisitDispatcher(g2, std::move(oneCopy), -r2);
-        VisitDispatcher(g1, std::move(kr2), std::move(r3));
-        VisitDispatcher(g2, std::move(r1), std::move(b));
+        this->VisitDispatcher(g1, std::move(k), -r1);
+        this->VisitDispatcher(g2, std::move(oneCopy), -r2);
+        this->VisitDispatcher(g1, std::move(kr2), std::move(r3));
+        this->VisitDispatcher(g2, std::move(r1), std::move(b));
     }
 };
