@@ -188,16 +188,16 @@ struct BobDoesVecOle
                 memset(vecE, 0, sizeof(Zp) * (U + V));
                 if (jsz - j < W)
                 {
-                    memcpy(vecM, aliceCoefI, sizeof(Zp) * (jsz - j));
+                    memcpy(vecM, aliceCoefI + j, sizeof(Zp) * (jsz - j));
                     /* reset unused part of vecM to prevent accidental leakage */
                     memset(vecM + (jsz - j), 0, sizeof(Zp) * (W - (jsz - j)));
-                    memcpy(vecMTmp, aliceInteI, sizeof(Zp) * (jsz - j));
+                    memcpy(vecMTmp, aliceInteI + j, sizeof(Zp) * (jsz - j));
                     /* resetting vecMTmp is unnecessary */
                 }
                 else
                 {
-                    memcpy(vecM, aliceCoefI, sizeof(Zp) * W);
-                    memcpy(vecMTmp, aliceInteI, sizeof(Zp) * W);
+                    memcpy(vecM, aliceCoefI + j, sizeof(Zp) * W);
+                    memcpy(vecMTmp, aliceInteI + j, sizeof(Zp) * W);
                 }
                 /* finish sampling r */
                 sampR.join();
