@@ -6,7 +6,7 @@
 
 typedef Cryptography::Z<4294967291u> Zp;
 
-#define BATCHSZ 238328
+#define BATCHSZ 354933
 
 std::uniform_int_distribution<uint32_t> dist(0u, 4294967290u);
 std::random_device next;
